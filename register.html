@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Create your free TaxSathi account – AI-powered ITR assistance for Indian taxpayers." />
+  <title>Create Account – TaxSathi</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+
+  <style>
+    /* Register page: taller form, allow scrolling within form side */
+    .auth-form-side {
+      overflow-y: auto;
+    }
+
+    .auth-form-container {
+      padding-top: var(--space-10);
+      padding-bottom: var(--space-10);
+      justify-content: flex-start;
+    }
+
+    @media (min-width: 1025px) {
+      .auth-root {
+        min-height: 100vh;
+      }
+      .auth-form-side {
+        height: 100vh;
+        position: sticky;
+        top: 0;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .auth-form-container {
+        padding-top: var(--space-8);
+        padding-bottom: var(--space-8);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="auth-root" id="authRoot">
+
+    <!-- ── Left: Branding Panel ─────────────────── -->
+    <aside class="auth-panel" aria-label="TaxSathi welcome panel">
+
+      <header class="panel-header">
+        <a href="login.html" class="panel-logo" aria-label="TaxSathi home">
+          <div class="panel-logo-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                 viewBox="0 0 24 24" fill="none"
+                 stroke="white" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <line x1="6" y1="3" x2="18" y2="3"/>
+              <line x1="6" y1="8" x2="18" y2="8"/>
+              <line x1="6" y1="21" x2="18" y2="21"/>
+              <path d="M6 3h6a6 6 0 0 1 0 12H6l12 9"/>
+            </svg>
+          </div>
+          <span class="panel-logo-text">Tax<span>Sathi</span></span>
+        </a>
+      </header>
+
+      <div class="panel-body">
+        <h1 class="panel-tagline">
+          Join Thousands of<br/>
+          <span>Smart Filers</span>
+        </h1>
+        <p class="panel-description">
+          Create your free TaxSathi account and get AI-powered guidance for every
+          ITR form — from ITR-1 to ITR-6.
+        </p>
+
+        <ul class="panel-features" aria-label="Key benefits">
+          <li class="panel-feature-item">
+            <span class="panel-feature-icon" aria-hidden="true">⚡</span>
+            File ITR in under 15 minutes with AI guidance
+          </li>
+          <li class="panel-feature-item">
+            <span class="panel-feature-icon" aria-hidden="true">🧾</span>
+            Auto-compute tax, refunds &amp; outstanding dues
+          </li>
+          <li class="panel-feature-item">
+            <span class="panel-feature-icon" aria-hidden="true">📊</span>
+            Year-round tax planning &amp; saving suggestions
+          </li>
+          <li class="panel-feature-item">
+            <span class="panel-feature-icon" aria-hidden="true">🆓</span>
+            Free for salaried taxpayers — no hidden charges
+          </li>
+        </ul>
+      </div>
+
+      <footer class="panel-footer">
+        <div class="panel-trust">
+          <span class="panel-trust-dot" aria-hidden="true"></span>
+          Trusted by taxpayers across India &nbsp;·&nbsp; Secured with 256-bit encryption
+        </div>
+      </footer>
+
+    </aside>
+
+    <!-- ── Right: Form Side ──────────────────────── -->
+    <main class="auth-form-side">
+
+      <!-- Mobile-only header -->
+      <div class="auth-mobile-header" role="banner">
+        <a href="login.html" class="mobile-logo" aria-label="TaxSathi home">
+          <div class="mobile-logo-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                 viewBox="0 0 24 24" fill="none"
+                 stroke="white" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <line x1="6" y1="3" x2="18" y2="3"/>
+              <line x1="6" y1="8" x2="18" y2="8"/>
+              <line x1="6" y1="21" x2="18" y2="21"/>
+              <path d="M6 3h6a6 6 0 0 1 0 12H6l12 9"/>
+            </svg>
+          </div>
+          <span class="mobile-logo-name">Tax<span>Sathi</span></span>
+        </a>
+        <a href="login.html" class="mobile-switch-link">Sign In</a>
+      </div>
+
+      <!-- Form container -->
+      <div class="auth-form-container">
+
+        <!-- Form header -->
+        <div class="auth-form-header">
+          <h2 class="auth-form-title">Create your account</h2>
+          <p class="auth-form-subtitle">
+            Free forever for individual taxpayers. No credit card required.
+          </p>
+        </div>
+
+        <!-- Global alert -->
+        <div
+          id="registerAlert"
+          class="alert alert-error"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+          tabindex="-1"
+          style="margin-bottom: var(--space-4);"
+        >
+          <span class="alert-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                 viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </span>
+          <span class="alert-content" id="registerAlertMsg"></span>
+        </div>
+
+        <!-- ── Registration Form ──────────────────── -->
+        <form
+          id="registerForm"
+          class="auth-form"
+          novalidate
+          autocomplete="on"
+          aria-label="Registration form"
+        >
+
+          <!-- Name row -->
+          <div class="form-row">
+
+            <!-- First name -->
+            <div class="form-group">
+              <label for="regFirstName" class="form-label">
+                First Name
+                <span class="required-mark" aria-hidden="true">*</span>
+              </label>
+              <div class="input-wrapper">
+                <span class="input-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                       viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  id="regFirstName"
+                  name="firstName"
+                  class="form-control has-icon-left"
+                  placeholder="Rahul"
+                  autocomplete="given-name"
+                  aria-required="true"
+                  aria-describedby="regFirstNameError"
+                  spellcheck="false"
+                />
+              </div>
+              <div id="regFirstNameError" class="field-error" role="alert" aria-live="polite">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                     viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span></span>
+              </div>
+            </div>
+
+            <!-- Last name -->
+            <div class="form-group">
+              <label for="regLastName" class="form-label">
+                Last Name
+                <span class="required-mark" aria-hidden="true">*</span>
+              </label>
+              <div class="input-wrapper">
+                <span class="input-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                       viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  id="regLastName"
+                  name="lastName"
+                  class="form-control has-icon-left"
+                  placeholder="Sharma"
+                  autocomplete="family-name"
+                  aria-required="true"
+                  aria-describedby="regLastNameError"
+                  spellcheck="false"
+                />
+              </div>
+              <div id="regLastNameError" class="field-error" role="alert" aria-live="polite">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                     viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span></span>
+              </div>
+            </div>
+
+          </div><!-- /form-row -->
+
+          <!-- Email -->
+          <div class="form-group">
+            <label for="regEmail" class="form-label">
+              Email Address
+              <span class="required-mark" aria-hidden="true">*</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                     viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </span>
+              <input
+                type="email"
+                id="regEmail"
+                name="email"
+                class="form-control has-icon-left"
+                placeholder="you@example.com"
+                autocomplete="email"
+                inputmode="email"
+                aria-required="true"
+                aria-describedby="regEmailError"
+                spellcheck="false"
+              />
+            </div>
+            <div id="regEmailError" class="field-error" role="alert" aria-live="polite">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                   viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5"
+                   stroke-linecap="round" stroke-linejoin="round"
+                   aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span></span>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label for="regPassword" class="form-label">
+              Password
+              <span class="required-mark" aria-hidden="true">*</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                     viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="regPassword"
+                name="password"
+                class="form-control has-icon-left has-icon-right"
+                placeholder="Create a strong password"
+                autocomplete="new-password"
+                aria-required="true"
+                aria-describedby="regPasswordError regPasswordHint"
+              />
+              <button
+                type="button"
+                id="regPassToggle"
+                class="password-toggle"
+                aria-label="Show password"
+                title="Toggle password visibility"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                     viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Password strength meter -->
+            <div class="password-strength" aria-live="polite" aria-atomic="true">
+              <div class="strength-bar-track" role="progressbar" aria-label="Password strength">
+                <div id="strengthFill" class="strength-bar-fill" data-strength="0"></div>
+              </div>
+              <span id="strengthLabel" class="strength-label"></span>
+            </div>
+
+            <div id="regPasswordError" class="field-error" role="alert" aria-live="polite">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                   viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5"
+                   stroke-linecap="round" stroke-linejoin="round"
+                   aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span></span>
+            </div>
+            <p id="regPasswordHint" class="field-hint">
+              Min 8 characters · uppercase · lowercase · number
+            </p>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="form-group">
+            <label for="regConfirmPassword" class="form-label">
+              Confirm Password
+              <span class="required-mark" aria-hidden="true">*</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                     viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="regConfirmPassword"
+                name="confirmPassword"
+                class="form-control has-icon-left has-icon-right"
+                placeholder="Re-enter your password"
+                autocomplete="new-password"
+                aria-required="true"
+                aria-describedby="regConfirmPasswordError"
+              />
+              <button
+                type="button"
+                id="regConfirmPassToggle"
+                class="password-toggle"
+                aria-label="Show confirm password"
+                title="Toggle password visibility"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                     viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+            <div id="regConfirmPasswordError" class="field-error" role="alert" aria-live="polite">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                   viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5"
+                   stroke-linecap="round" stroke-linejoin="round"
+                   aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span></span>
+            </div>
+          </div>
+
+          <!-- Terms & conditions -->
+          <div class="form-group">
+            <label class="form-check">
+              <input
+                type="checkbox"
+                id="regTerms"
+                name="terms"
+                class="form-check-input"
+                aria-required="true"
+                aria-describedby="regTermsError"
+              />
+              <span class="form-check-label">
+                I agree to the
+                <a href="#" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+                and
+                <a href="#" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+              </span>
+            </label>
+            <div id="regTermsError" class="field-error" role="alert" aria-live="polite">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                   viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5"
+                   stroke-linecap="round" stroke-linejoin="round"
+                   aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span>You must accept the Terms of Service to continue.</span>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            id="registerSubmit"
+            class="btn btn-primary btn-block btn-lg"
+          >
+            <span class="btn-spinner" aria-hidden="true"></span>
+            <span class="btn-text">Create Account</span>
+          </button>
+
+          <p class="terms-text">
+            By creating an account, you acknowledge that TaxSathi uses your
+            information to assist with ITR filing only, in accordance with the
+            <a href="#" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+          </p>
+
+        </form>
+
+        <!-- Government info strip -->
+        <div class="gov-strip" role="note" aria-label="Security information">
+          <span class="gov-strip-icon" aria-hidden="true">🏛️</span>
+          <div class="gov-strip-text">
+            <strong>Secure & Government Compliant</strong>
+            TaxSathi is aligned with Income Tax Department of India guidelines.
+            Your data is encrypted and never shared with third parties.
+          </div>
+        </div>
+
+        <!-- Link to login -->
+        <div class="auth-form-footer" role="contentinfo">
+          Already have an account?
+          <a href="login.html">Sign in here</a>
+        </div>
+
+      </div><!-- /auth-form-container -->
+    </main>
+
+  </div><!-- /auth-root -->
+
+  <!-- JS (ES module) -->
+  <script type="module" src="js/register.js"></script>
+
+</body>
+</html>
