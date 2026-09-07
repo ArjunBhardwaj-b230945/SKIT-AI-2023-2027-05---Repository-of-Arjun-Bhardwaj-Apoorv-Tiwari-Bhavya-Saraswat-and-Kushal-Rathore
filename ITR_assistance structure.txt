@@ -1,0 +1,35 @@
+                        START
+                          ↓
+                    [intent_router]
+                    /              \
+          chatbot path            itr generation path
+               ↓                          ↓
+      [rewrite_query]            [collect_user_input]
+               ↓                 (DOB, Aadhaar, bank, address)
+         [retrieve]                        ↓
+      (Kushal's RAG tool)        [receive_ocr_output]
+               ↓                 (Kushal's parsed Form16 + 26AS JSON)
+       [build_prompt]                      ↓
+               ↓                  [cross_validation]
+        [gemini_call]              (Form16 TDS = 26AS? PAN match?)
+               ↓                          ↓
+      [format_response]          [tax_computation]
+               ↓                 (GTI, deductions, slab, rebate, cess)
+              END                          ↓
+                                  [itr_field_mapper]
+                                  (map to B1, B2, C1...D14 fields)
+                                          ↓
+                                   [cbdt_validation]
+                                   (279 rules from the PDF)
+                                          ↓
+                                   valid?
+                                  /       \
+                                NO        YES
+                                ↓          ↓
+                         show errors  [pdf_generation]
+                         to user           ↓
+                              ↓          END
+                         user corrects
+                         input data
+                              ↓
+                         back to collect_user_input
