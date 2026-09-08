@@ -1,7 +1,7 @@
 """
 llamaparse_integration.py
 ================================================================================
-TanSathi - ITR Assistance
+TaxSathi - ITR Assistance
 LlamaParse Integration -- Sprint 1 (10-08-2026 to 30-08-2026)
 
 SCOPE (deliberately limited to this sprint):
@@ -76,12 +76,16 @@ def get_client() -> LlamaCloud:
     file during development (see .env.example), or set directly in the real
     environment in production/Docker/CI.
     """
-    api_key = os.environ.get("LLAMA_CLOUD_API_KEY")
+    # The SDK itself accepts either LLAMA_CLOUD_API_KEY or LLAMA_PARSE_API_KEY as a
+    # fallback (verified against llama_cloud/_client.py). Our own check must accept
+    # the same two names -- otherwise someone with a perfectly valid LLAMA_PARSE_API_KEY
+    # set would get a misleading "not set" error from us before the SDK ever runs.
+    api_key = os.environ.get("LLAMA_CLOUD_API_KEY") or os.environ.get("LLAMA_PARSE_API_KEY")
     if not api_key:
         raise LlamaParseConfigError(
-            "LLAMA_CLOUD_API_KEY is not set. Copy .env.example to .env and fill in your "
-            "real key (get one at https://cloud.llamaindex.ai), or export it in your "
-            "shell/deployment environment. Never hard-code the key in source code."
+            "Neither LLAMA_CLOUD_API_KEY nor LLAMA_PARSE_API_KEY is set. Copy .env.example "
+            "to .env and fill in your real key (get one at https://cloud.llamaindex.ai), or "
+            "export it in your shell/deployment environment. Never hard-code the key in source code."
         )
     return LlamaCloud(api_key=api_key)
 
@@ -172,8 +176,8 @@ def save_parsed_output(parsed: ParsedDocument, output_dir: str | Path) -> dict:
     return {"markdown": str(md_path), "text": str(txt_path), "items": str(items_path)}
 
 
-def _print_summary(label: str, parsed: ParsedDocument) -> None:
-    print(f"\n{'=' * 70}\n{label}: {parsed.source_path.name}\n{'=' * 70}")
+def _print_summary(parsed: ParsedDocument) -> None:
+    print(f"\n{'=' * 70}\n{parsed.source_path.name}\n{'=' * 70}")
     print(f"Job ID:      {parsed.job_id}")
     print(f"Status:      {parsed.status}")
     print(f"Pages:       {parsed.page_count}")
@@ -191,12 +195,19 @@ if __name__ == "__main__":
         sys.exit(1)
 
     output_dir = "parsed_output"
-    labels = ["Form 16", "Form 26AS"]
-    for label, file_arg in zip(labels, sys.argv[1:3]):
+    # NOTE: labels are derived from the actual filename, not from position. The
+    # original version assumed argv[1] is always Form16 and argv[2] is always
+    # Form26AS -- that assumption breaks (and silently mislabels output) if the
+    # files are passed in a different order, or only one Form26AS file is given.
+    exit_code = 0
+    for file_arg in sys.argv[1:3]:
         try:
             parsed = parse_document(file_arg)
-            _print_summary(label, parsed)
+            _print_summary(parsed)
             paths = save_parsed_output(parsed, output_dir)
             print(f"Saved: {paths}")
         except (LlamaParseConfigError, LlamaParseJobError, FileNotFoundError, ValueError) as exc:
-            print(f"[ERROR] {label} ({file_arg}): {exc}")
+            print(f"[ERROR] ({file_arg}): {exc}")
+            exit_code = 1
+
+    sys.exit(exit_code)
