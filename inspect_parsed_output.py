@@ -1,7 +1,7 @@
 """
 inspect_parsed_output.py
 ================================================================================
-TanSathi - ITR Assistance -- LlamaParse Integration (Sprint 1)
+TaxSathi - ITR Assistance -- LlamaParse Integration (Sprint 1)
 
 Automated version of the "test checklist": run this AFTER
 llamaparse_integration.py has saved output, to confirm the parse actually
