@@ -21,6 +21,7 @@ Usage:
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -42,6 +43,21 @@ CHECKLISTS = {
 }
 
 
+def _keyword_present(keyword: str, text: str) -> bool:
+    """
+    Word-boundary match, NOT a plain substring check.
+
+    A plain `keyword.lower() in text.lower()` check is a real bug here: 'TAN'
+    matches inside 'STANDARD' ('S-TAN-dard'), and 'PAN' matches inside common
+    words like 'company' or 'expand'. Form16 literally contains the phrase
+    "Standard deduction under section 16(ia)" -- so the old check would report
+    "TAN detected" as PASS even on a document where no TAN was ever parsed,
+    which defeats the purpose of the check.
+    """
+    pattern = r"\b" + re.escape(keyword) + r"\b"
+    return re.search(pattern, text, flags=re.IGNORECASE) is not None
+
+
 def run_checklist(md_path: Path, doc_type: str) -> bool:
     if not md_path.exists():
         print(f"[FAIL] Could not find {md_path} -- did the parse + save step run first?")
@@ -60,7 +76,7 @@ def run_checklist(md_path: Path, doc_type: str) -> bool:
         print("[FAIL] Parsed markdown is EMPTY -- parsing likely failed silently.")
 
     for keyword, description in checklist.items():
-        found = keyword.lower() in text.lower()
+        found = _keyword_present(keyword, text)
         print(f"[{'PASS' if found else 'FAIL'}] {description}  (looked for: '{keyword}')")
         all_passed = all_passed and found
 
@@ -86,7 +102,19 @@ if __name__ == "__main__":
         print("Usage: python inspect_parsed_output.py <path_without_extension> <form16|form26as>")
         sys.exit(1)
 
+    # Normalize once: strip any suffix the caller might have accidentally included
+    # (e.g. "...form16.md" instead of "...form16"), so the .md path and the
+    # _items.json path are always derived consistently from the same base --
+    # previously the .md path was extension-aware (.with_suffix) while the
+    # _items.json path was built by raw string concatenation, which could
+    # silently diverge if a suffix was present.
     base = Path(sys.argv[1])
+    base = base.with_suffix("") if base.suffix else base
     doc_type = sys.argv[2]
-    run_checklist(base.with_suffix(".md"), doc_type)
+
+    passed = run_checklist(base.with_suffix(".md"), doc_type)
     check_items_json(Path(f"{base}_items.json"))
+
+    # A "test checklist" that always exits 0 can't gate anything (CI, or just
+    # "did this actually work before I move to the next sprint"). Signal failure.
+    sys.exit(0 if passed else 1)
