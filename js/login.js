@@ -9,6 +9,7 @@
  *   - Alert banner for global errors
  *   - API call to POST /signin  [Stage 3]
  *   - JWT storage via auth.js   [Stage 3]
+ *   - Already-logged-in redirect [Stage 4]
  */
 
 'use strict';
@@ -16,10 +17,8 @@
 import {
   isRequired,
   isValidEmail,
-  isValidPassword,
   showFieldError,
   clearFieldError,
-  resetField,
   setButtonLoading,
   clearButtonLoading,
 } from './validation.js';
@@ -27,6 +26,12 @@ import {
 /* ── Stage 3: API & Auth utilities ───────────── */
 import { apiPost, ENDPOINTS, NetworkError } from './api.js';
 import { saveToken, isLoggedIn }            from './auth.js';
+
+/* ── Stage 4: Redirect already-authenticated users ─
+   If a token exists, skip the login page entirely.   */
+if (isLoggedIn()) {
+  window.location.replace('dashboard.html');
+}
 
 /* ── Element references ───────────────────────── */
 const form         = document.getElementById('loginForm');
@@ -57,21 +62,21 @@ function validateEmail() {
   return true;
 }
 
-/* ── Validate password field ──────────────────── */
+/* ── Validate password field (login: presence-only) ──
+   On login, only check that the field is not empty.
+   Password complexity is the backend's responsibility —
+   enforcing it here would prevent users with legacy or
+   simpler passwords from signing in at all.           */
 function validatePassword() {
   const val = passInput.value;
   if (!isRequired(val)) {
     showFieldError(passInput, passError, 'Password is required.');
     return false;
   }
-  if (!isValidPassword(val)) {
-    showFieldError(passInput, passError,
-      'Password must be at least 8 characters with uppercase, lowercase and a number.');
-    return false;
-  }
   clearFieldError(passInput, passError, true);
   return true;
 }
+
 
 /* ── Show / hide global alert ─────────────────── */
 function showAlert(message) {
