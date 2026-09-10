@@ -10,6 +10,7 @@
  *   - Alert banner for global messages
  *   - API call to POST /signup  [Stage 3]
  *   - JWT storage via auth.js   [Stage 3]
+ *   - Already-logged-in redirect [Stage 4]
  */
 
 'use strict';
@@ -23,15 +24,19 @@ import {
   passwordsMatch,
   showFieldError,
   clearFieldError,
-  resetField,
   setButtonLoading,
   clearButtonLoading,
 } from './validation.js';
 
 /* ── Stage 3: API & Auth utilities ───────────── */
 import { apiPost, ENDPOINTS, NetworkError } from './api.js';
-import { saveToken }                        from './auth.js';
+import { saveToken, isLoggedIn }            from './auth.js';
 
+/* ── Stage 4: Redirect already-authenticated users ─
+   If a token exists, skip the register page entirely. */
+if (isLoggedIn()) {
+  window.location.replace('dashboard.html');
+}
 
 /* ── Element references ───────────────────────── */
 const form              = document.getElementById('registerForm');
