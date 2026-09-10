@@ -9,5 +9,6 @@ dependencies = [
     "langchain-classic>=1.0.8",
     "langchain-community>=0.4.2",
     "langchain-core>=1.6.0",
+    "langchain-google-genai>=4.3.6",
     "langgraph>=1.2.11",
 ]
