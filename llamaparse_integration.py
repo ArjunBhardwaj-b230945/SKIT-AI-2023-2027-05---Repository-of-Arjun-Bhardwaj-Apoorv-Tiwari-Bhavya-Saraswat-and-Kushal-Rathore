@@ -1,7 +1,7 @@
 """
 llamaparse_integration.py
 ================================================================================
-TanSathi - ITR Assistance
+TaxSathi - ITR Assistance
 LlamaParse Integration -- Sprint 1 (10-08-2026 to 30-08-2026)
 
 SCOPE (deliberately limited to this sprint):

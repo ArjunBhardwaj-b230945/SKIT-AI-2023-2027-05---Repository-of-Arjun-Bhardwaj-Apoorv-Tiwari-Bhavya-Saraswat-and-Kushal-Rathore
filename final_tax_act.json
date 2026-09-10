@@ -1,0 +1,175 @@
+{
+    "regimes": [
+        {   
+            "regime_name": "New",
+            "tax_year": "2026-27",
+            "standard_deduction": 75000,
+            "rebate_limit_87a": 1200000,
+            "rebate_amount_87a": 60000,
+            "basic_exemption_limit": 400000,
+            "slabs": [
+                {
+                    "min_Income": 0,
+                    "max_Income": 400000,
+                    "tax_rate_percentage": 0.0
+                },
+                {
+                    "min_Income": 400001,
+                    "max_Income": 800000,
+                    "tax_rate_percentage": 5.0
+                },
+                {
+                    "min_Income": 800001,
+                    "max_Income": 1200000,
+                    "tax_rate_percentage": 10.0
+                },
+                {
+                    "min_Income": 1200001,
+                    "max_Income": 1600000,
+                    "tax_rate_percentage": 15.0
+                },
+                {
+                    "min_Income": 1600001,
+                    "max_Income": 2000000,
+                    "tax_rate_percentage": 20.0
+                },
+                {
+                    "min_Income": 2000001,
+                    "max_Income": 2400000,
+                    "tax_rate_percentage": 25.0
+                },
+                {
+                    "min_Income": 2400001,
+                    "max_Income": null,
+                    "tax_rate_percentage": 30.0
+                }
+            ]
+        },
+        {
+        "regime_name": "Old",
+        "tax_year": "2026-27",
+        "standard_deduction": 50000,
+        "rebate_limit_87a": 500000,
+        "rebate_amount_87a": 12500,
+        "basic_exemption_limit": 250000,
+        "slabs": [
+            {"min_Income": 0, "max_Income": 250000, "tax_rate_percentage": 0.0},
+            {"min_Income": 250001, "max_Income": 500000, "tax_rate_percentage": 5.0},
+            {"min_Income": 500001, "max_Income": 1000000, "tax_rate_percentage": 20.0},
+            {"min_Income": 1000001, "max_Income": null, "tax_rate_percentage": 30.0}
+        ]
+    }
+    ],
+    "allowances": [
+    {
+        "allowance_name": "House Rent Allowance (HRA)",
+        "section_reference": "Schedule III, Sl. No. 11",
+        "category": "Allowance",
+        "monthly_limit_per_person": null,
+        "annual_limit": null,
+        "is_applicable_new_regime": false,
+        "is_applicable_old_regime": true,
+        "notes": "Minimum of: actual HRA received, 50% (metro) or 40% (non-metro) of Basic Salary, actual rent paid minus 10% of Basic Salary."
+    },
+    {
+        "allowance_name": "Leave Travel Allowance (LTA)",
+        "section_reference": "Schedule III, Sl. No. 8",
+        "category": "Allowance",
+        "monthly_limit_per_person": null,
+        "annual_limit": null,
+        "is_applicable_new_regime": false,
+        "is_applicable_old_regime": true,
+        "notes": "Actual travel fare only. 2 journeys per 4-year block."
+    },
+    {
+        "allowance_name": "Children Education Allowance",
+        "section_reference": "Schedule III, Sl. No. 13",
+        "category": "Allowance",
+        "monthly_limit_per_person": 100,
+        "annual_limit": 2400,
+        "is_applicable_new_regime": false,
+        "is_applicable_old_regime": true,
+        "notes": "Maximum 2 children."
+    },
+    {
+        "allowance_name": "Hostel Expenditure Allowance",
+        "section_reference": "Schedule III, Sl. No. 13",
+        "category": "Allowance",
+        "monthly_limit_per_person": 300,
+        "annual_limit": 7200,
+        "is_applicable_new_regime": false,
+        "is_applicable_old_regime": true,
+        "notes": "Maximum 2 children."
+    }
+],
+    "deductions": [
+    {
+        "section": "123",
+        "description": "Investments and payments qualifying for deduction (equivalent of old 80C)",
+        "max_deduction": 150000,
+        "is_applicable_new_regime": false,
+        "eligible_investments": [
+            "Life insurance premium",
+            "PPF contributions",
+            "Employee provident fund contributions",
+            "ELSS mutual funds",
+            "NSC subscriptions",
+            "Tuition fees for two children",
+            "Home loan principal repayment",
+            "5-year fixed deposit with scheduled bank",
+            "Senior Citizen Savings Scheme",
+            "Sukanya Samriddhi Scheme",
+            "Approved superannuation fund contributions"
+        ]
+    },
+    {
+        "section": "124(1)",
+        "description": "NPS employer contribution deduction",
+        "max_deduction": null,
+        "is_applicable_new_regime": true,
+        "eligible_investments": [
+            "Employer contribution: 14% of salary for Central/State Govt employees",
+            "Employer contribution: 10% of salary for other employers"
+        ]
+    }, 
+
+
+
+        {
+        "section": "124(3)",
+        "description": "NPS Individual Contribution deduction",
+        "max_deduction": 50000,
+        "is_applicable_new_regime": false,
+        "eligible_investments": [
+            "Individual NPS contribution: up to ₹50,000"
+        ]
+    },
+
+
+
+    {
+        "section": "131",
+        "description": "Interest on home loan for residential house property",
+        "max_deduction": 150000,
+        "is_applicable_new_regime": false,
+        "eligible_investments": null
+    },
+    {
+        "section": "132",
+        "description": "Interest on loan for purchase of electric vehicle",
+        "max_deduction": 150000,
+        "is_applicable_new_regime": false,
+        "eligible_investments": null
+    },
+    {
+        "section": "153",
+        "description": "Deduction for interest on deposits in savings account",
+        "max_deduction": 10000,
+        "is_applicable_new_regime": false,
+        "eligible_investments": [
+            "Savings account interest — general: ₹10,000",
+            "Savings and fixed deposit interest — senior citizen: ₹50,000"
+        ]
+    }
+]
+}
