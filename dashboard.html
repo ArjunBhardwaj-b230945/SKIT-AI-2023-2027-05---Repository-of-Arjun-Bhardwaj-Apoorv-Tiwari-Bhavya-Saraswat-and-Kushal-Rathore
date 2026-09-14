@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="TaxSathi Dashboard – Your ITR filing home." />
+  <meta name="description" content="TaxSathi Dashboard – Your personal ITR filing and tax assistance home." />
   <title>Dashboard – TaxSathi</title>
 
   <!-- Google Fonts: Inter -->
@@ -11,11 +11,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Design system -->
+  <!-- Design system (existing) -->
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/components.css" />
 
   <style>
+    /* =====================================================
+       Dashboard – Page Styles
+       Uses existing CSS custom properties from base.css.
+       All dashboard-specific styles are scoped here to
+       avoid duplicating or overriding existing components.
+       ===================================================== */
+
     body {
       min-height: 100vh;
       background-color: var(--color-bg);
@@ -23,7 +30,7 @@
       flex-direction: column;
     }
 
-    /* ── Top navigation bar ── */
+    /* ── Top Navigation Bar ────────────────────────── */
     .dashboard-nav {
       background-color: var(--color-surface);
       border-bottom: 1px solid var(--color-border);
@@ -44,6 +51,10 @@
       text-decoration: none;
     }
 
+    .nav-logo:hover {
+      text-decoration: none;
+    }
+
     .nav-logo-icon {
       width: 36px;
       height: 36px;
@@ -52,12 +63,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
 
     .nav-logo-name {
       font-size: var(--font-size-lg);
       font-weight: var(--font-weight-bold);
       color: var(--color-text-primary);
+      letter-spacing: -0.01em;
     }
 
     .nav-logo-name span {
@@ -80,6 +93,8 @@
       padding: var(--space-2) var(--space-3);
       border-radius: var(--radius-full);
       border: 1px solid var(--color-border);
+      max-width: 200px;
+      overflow: hidden;
     }
 
     .nav-user-dot {
@@ -88,140 +103,515 @@
       border-radius: 50%;
       background-color: #4ADE80;
       flex-shrink: 0;
+      animation: pulseOnline 2.5s infinite;
     }
 
-    /* ── Main content ── */
-    .dashboard-main {
+    @keyframes pulseOnline {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.45; }
+    }
+
+    #userEmail {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── Page wrapper ──────────────────────────────── */
+    .dashboard-page {
       flex: 1;
-      padding: var(--space-12) var(--space-8);
-      max-width: 960px;
-      margin: 0 auto;
       width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: var(--space-8) var(--space-8) var(--space-16);
     }
 
-    .welcome-card {
-      background-color: var(--color-surface);
-      border: 1px solid var(--color-border);
+    /* ── Section headings ──────────────────────────── */
+    .section-heading {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      letter-spacing: -0.01em;
+      margin-bottom: var(--space-1);
+    }
+
+    .section-subheading {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-5);
+    }
+
+    /* ── Welcome / Overview Banner ─────────────────── */
+    .welcome-banner {
+      background: linear-gradient(130deg, var(--color-primary-dark) 0%, var(--color-primary) 60%, #2D9E60 100%);
       border-radius: var(--radius-xl);
-      padding: var(--space-10) var(--space-10);
-      box-shadow: var(--shadow-card);
+      padding: var(--space-8) var(--space-10);
+      color: white;
+      margin-bottom: var(--space-8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative circles on the banner */
+    .welcome-banner::before,
+    .welcome-banner::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255,255,255,.08);
+      pointer-events: none;
+    }
+
+    .welcome-banner::before {
+      width: 260px;
+      height: 260px;
+      bottom: -70px;
+      right: -60px;
+    }
+
+    .welcome-banner::after {
+      width: 140px;
+      height: 140px;
+      top: -40px;
+      right: 180px;
+    }
+
+    .welcome-banner-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-6);
+    }
+
+    .welcome-banner-text {}
+
+    .welcome-greeting-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      background-color: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: var(--radius-full);
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: var(--space-3);
+      color: rgba(255,255,255,.9);
+    }
+
+    .welcome-name {
+      font-size: var(--font-size-3xl);
+      font-weight: var(--font-weight-bold);
+      letter-spacing: -0.02em;
+      line-height: var(--line-height-tight);
+      margin-bottom: var(--space-2);
+    }
+
+    .welcome-name span {
+      color: var(--color-accent);
+    }
+
+    .welcome-desc {
+      font-size: var(--font-size-sm);
+      color: rgba(255,255,255,.8);
+      line-height: var(--line-height-relaxed);
+      max-width: 420px;
+      margin-bottom: var(--space-5);
+    }
+
+    .welcome-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    /* White filled button for banner */
+    .btn-white {
+      background-color: white;
+      border-color: white;
+      color: var(--color-primary-dark);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .btn-white:hover {
+      background-color: var(--color-primary-light);
+      border-color: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      text-decoration: none;
+    }
+
+    /* Ghost-white for secondary banner button */
+    .btn-ghost-white {
+      background-color: rgba(255,255,255,.12);
+      border: 1.5px solid rgba(255,255,255,.35);
+      color: white;
+      font-weight: var(--font-weight-medium);
+    }
+
+    .btn-ghost-white:hover {
+      background-color: rgba(255,255,255,.22);
+      border-color: rgba(255,255,255,.5);
+      text-decoration: none;
+      color: white;
+    }
+
+    /* Banner right: session pill */
+    .welcome-session-info {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: var(--space-3);
+    }
+
+    .session-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      background-color: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.25);
+      color: rgba(255,255,255,.9);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-full);
+      white-space: nowrap;
+    }
+
+    .session-pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #4ADE80;
+      flex-shrink: 0;
+    }
+
+    /* ── Quick-Status Bar ──────────────────────────── */
+    .status-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
       margin-bottom: var(--space-8);
     }
 
-    .welcome-tag {
-      display: inline-flex;
+    .status-card {
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+      box-shadow: var(--shadow-sm);
+      display: flex;
       align-items: center;
-      gap: var(--space-2);
-      background-color: var(--color-primary-light);
-      color: var(--color-primary-dark);
-      font-size: var(--font-size-xs);
-      font-weight: var(--font-weight-semibold);
-      padding: var(--space-1) var(--space-3);
-      border-radius: var(--radius-full);
-      margin-bottom: var(--space-4);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
+      gap: var(--space-4);
+      transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
     }
 
-    .welcome-heading {
-      font-size: var(--font-size-3xl);
+    .status-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-primary);
+    }
+
+    .status-icon-wrap {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .status-icon-wrap.green  { background-color: var(--color-primary-light); }
+    .status-icon-wrap.amber  { background-color: #FEF3C7; }
+    .status-icon-wrap.blue   { background-color: #EFF6FF; }
+    .status-icon-wrap.purple { background-color: #F3F0FF; }
+
+    .status-info {}
+
+    .status-value {
+      font-size: var(--font-size-lg);
       font-weight: var(--font-weight-bold);
       color: var(--color-text-primary);
-      margin-bottom: var(--space-3);
-      letter-spacing: -0.02em;
+      line-height: var(--line-height-tight);
     }
 
-    .welcome-heading span {
-      color: var(--color-primary);
+    .status-label {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-muted);
+      margin-top: 2px;
     }
 
-    .welcome-sub {
-      font-size: var(--font-size-base);
-      color: var(--color-text-secondary);
-      line-height: var(--line-height-relaxed);
-      max-width: 560px;
-      margin-bottom: var(--space-6);
+    /* ── Main Feature Cards ────────────────────────── */
+    .feature-section {
+      margin-bottom: var(--space-8);
     }
 
-    .auth-status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      background-color: #EDF7EE;
-      border: 1px solid #A5D6A7;
-      color: var(--color-success);
-      font-size: var(--font-size-sm);
-      font-weight: var(--font-weight-medium);
-      padding: var(--space-2) var(--space-4);
-      border-radius: var(--radius-full);
-    }
-
-    /* ── Placeholder cards ── */
     .feature-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-4);
-      margin-bottom: var(--space-8);
+      gap: var(--space-5);
     }
 
     .feature-card {
       background-color: var(--color-surface);
       border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-5);
-      text-align: center;
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
       box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      transition: box-shadow var(--transition-normal), transform var(--transition-normal), border-color var(--transition-normal);
+      position: relative;
+      overflow: hidden;
     }
 
-    .feature-card-icon {
-      font-size: 2rem;
-      margin-bottom: var(--space-3);
-      display: block;
+    .feature-card:hover {
+      box-shadow: var(--shadow-card);
+      transform: translateY(-2px);
+      border-color: var(--color-border-focus);
     }
+
+    /* Subtle top-border accent per card */
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+
+    .feature-card.card-green::before  { background-color: var(--color-primary); }
+    .feature-card.card-amber::before  { background-color: var(--color-accent); }
+    .feature-card.card-blue::before   { background-color: #3B82F6; }
+
+    .feature-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+
+    .feature-card-icon-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+
+    .feature-card-icon-wrap.green  { background-color: var(--color-primary-light); }
+    .feature-card-icon-wrap.amber  { background-color: #FEF3C7; }
+    .feature-card-icon-wrap.blue   { background-color: #EFF6FF; }
+
+    .coming-soon-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: var(--font-size-xs);
+      background-color: #FEF3C7;
+      color: #92400E;
+      padding: 3px var(--space-2);
+      border-radius: var(--radius-full);
+      font-weight: var(--font-weight-semibold);
+      white-space: nowrap;
+      border: 1px solid #FDE68A;
+    }
+
+    .feature-card-body {}
 
     .feature-card-title {
-      font-size: var(--font-size-base);
-      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bold);
       color: var(--color-text-primary);
-      margin-bottom: var(--space-1);
+      margin-bottom: var(--space-2);
+      letter-spacing: -0.01em;
     }
 
     .feature-card-desc {
       font-size: var(--font-size-sm);
-      color: var(--color-text-muted);
+      color: var(--color-text-secondary);
+      line-height: var(--line-height-relaxed);
     }
 
-    .coming-soon-badge {
-      display: inline-block;
-      margin-top: var(--space-2);
-      font-size: var(--font-size-xs);
-      background-color: #FEF3C7;
-      color: #92400E;
-      padding: 2px var(--space-2);
-      border-radius: var(--radius-full);
-      font-weight: var(--font-weight-medium);
+    /* Bullet list inside feature card */
+    .feature-bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
     }
 
-    /* ── Responsive ── */
-    @media (max-width: 768px) {
+    .feature-bullets li {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--line-height-normal);
+    }
+
+    .feature-bullet-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--color-primary);
+      flex-shrink: 0;
+      margin-top: 7px;
+    }
+
+    .feature-bullet-dot.amber  { background-color: var(--color-accent-dark); }
+    .feature-bullet-dot.blue   { background-color: #3B82F6; }
+
+    .feature-card-footer {
+      margin-top: auto;
+      padding-top: var(--space-2);
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* Disabled CTA inside feature card */
+    .btn-card-cta {
+      width: 100%;
+      justify-content: center;
+      font-size: var(--font-size-sm);
+      padding: var(--space-2) var(--space-4);
+      opacity: 0.6;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* ── Information strip ─────────────────────────── */
+    .info-strip {
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-6);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .info-strip-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .info-strip-text {
+      flex: 1;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--line-height-relaxed);
+    }
+
+    .info-strip-text strong {
+      color: var(--color-text-primary);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    /* =====================================================
+       RESPONSIVE BREAKPOINTS
+       ===================================================== */
+
+    /* Laptop / smaller desktop (≤ 1200px) */
+    @media (max-width: 1200px) {
+      .dashboard-page {
+        max-width: 100%;
+        padding: var(--space-6) var(--space-6) var(--space-12);
+      }
+
+      .status-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Tablet (≤ 900px) */
+    @media (max-width: 900px) {
+      .dashboard-nav {
+        padding: var(--space-3) var(--space-5);
+      }
+
+      .dashboard-page {
+        padding: var(--space-5) var(--space-5) var(--space-10);
+      }
+
+      .welcome-banner {
+        padding: var(--space-6) var(--space-6);
+      }
+
+      .welcome-session-info {
+        display: none; /* hide right-side session info on tablet */
+      }
+
+      .welcome-name {
+        font-size: var(--font-size-2xl);
+      }
+
+      .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .status-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Mobile large (≤ 640px) */
+    @media (max-width: 640px) {
       .dashboard-nav {
         padding: var(--space-3) var(--space-4);
       }
 
-      .dashboard-main {
-        padding: var(--space-6) var(--space-4);
+      .nav-user-badge {
+        display: none; /* show only sign-out button on small screens */
       }
 
-      .welcome-card {
-        padding: var(--space-6) var(--space-5);
+      .dashboard-page {
+        padding: var(--space-4) var(--space-4) var(--space-8);
+      }
+
+      .welcome-banner {
+        padding: var(--space-5) var(--space-5);
+      }
+
+      .welcome-name {
+        font-size: var(--font-size-xl);
+      }
+
+      .welcome-actions {
+        flex-direction: column;
+        align-items: flex-start;
       }
 
       .feature-grid {
         grid-template-columns: 1fr;
       }
 
-      .welcome-heading {
-        font-size: var(--font-size-2xl);
+      .status-bar {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-3);
+      }
+
+      .status-card {
+        padding: var(--space-3) var(--space-4);
+      }
+    }
+
+    /* Mobile small (≤ 400px) */
+    @media (max-width: 400px) {
+      .status-bar {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -229,9 +619,13 @@
 
 <body>
 
-  <!-- ── Navigation ───────────────────────────── -->
+  <!-- ════════════════════════════════════════════════
+       NAVIGATION
+       ════════════════════════════════════════════════ -->
   <nav class="dashboard-nav" role="navigation" aria-label="Main navigation">
-    <a href="dashboard.html" class="nav-logo" aria-label="TaxSathi dashboard">
+
+    <!-- Logo -->
+    <a href="dashboard.html" class="nav-logo" aria-label="TaxSathi dashboard home">
       <div class="nav-logo-icon" aria-hidden="true">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
              viewBox="0 0 24 24" fill="none"
@@ -246,8 +640,9 @@
       <span class="nav-logo-name">Tax<span>Sathi</span></span>
     </a>
 
+    <!-- Right: user badge + sign out -->
     <div class="nav-actions">
-      <div class="nav-user-badge" id="userBadge" aria-live="polite">
+      <div class="nav-user-badge" id="userBadge" aria-live="polite" title="Signed-in account">
         <span class="nav-user-dot" aria-hidden="true"></span>
         <span id="userEmail">Authenticated</span>
       </div>
@@ -260,91 +655,297 @@
         Sign Out
       </button>
     </div>
+
   </nav>
 
-  <!-- ── Main Content ─────────────────────────── -->
-  <main class="dashboard-main" role="main">
+  <!-- ════════════════════════════════════════════════
+       MAIN CONTENT
+       ════════════════════════════════════════════════ -->
+  <main class="dashboard-page" role="main" id="dashboardMain">
 
-    <!-- Welcome card -->
-    <div class="welcome-card">
-      <span class="welcome-tag" aria-label="Authentication status">
-        ✅ &nbsp;Authenticated
-      </span>
-      <h1 class="welcome-heading">
-        Welcome to <span>TaxSathi</span>
-      </h1>
-      <p class="welcome-sub">
-        You have successfully signed in. Your authentication token is securely
-        stored in your browser. The full ITR filing dashboard will be available
-        in the next development milestone.
+    <!-- ── 1. WELCOME BANNER ─────────────────────── -->
+    <section aria-labelledby="welcomeHeading">
+      <div class="welcome-banner">
+        <div class="welcome-banner-inner">
+
+          <div class="welcome-banner-text">
+            <div class="welcome-greeting-tag">
+              ✅ &nbsp;Dashboard Active
+            </div>
+            <h1 class="welcome-name" id="welcomeHeading">
+              Welcome back, <span id="welcomeUserName">User</span>
+            </h1>
+            <p class="welcome-desc">
+              Your personal ITR filing workspace. File returns, get AI-powered
+              tax guidance, and track your tax summary — all in one place.
+            </p>
+            <div class="welcome-actions">
+              <button
+                class="btn btn-white btn-sm"
+                type="button"
+                disabled
+                aria-disabled="true"
+                title="ITR Filing coming soon"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                     viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                File ITR
+              </button>
+              <button
+                class="btn btn-ghost-white btn-sm"
+                type="button"
+                disabled
+                aria-disabled="true"
+                title="AI Tax Assistant coming soon"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                     viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.2"
+                     stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                Ask AI Assistant
+              </button>
+            </div>
+          </div>
+
+          <!-- Right side: session info pill -->
+          <div class="welcome-session-info" aria-hidden="true">
+            <div class="session-pill">
+              <span class="session-pill-dot"></span>
+              Session Active · JWT Secured
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 2. QUICK STATUS BAR ───────────────────── -->
+    <section aria-label="Quick status overview" style="margin-bottom: var(--space-8);">
+      <div class="status-bar" role="list">
+
+        <div class="status-card" role="listitem">
+          <div class="status-icon-wrap green" aria-hidden="true">📋</div>
+          <div class="status-info">
+            <div class="status-value">Not Filed</div>
+            <div class="status-label">ITR Filing Status</div>
+          </div>
+        </div>
+
+        <div class="status-card" role="listitem">
+          <div class="status-icon-wrap amber" aria-hidden="true">📅</div>
+          <div class="status-info">
+            <div class="status-value">—</div>
+            <div class="status-label">Filing Deadline</div>
+          </div>
+        </div>
+
+        <div class="status-card" role="listitem">
+          <div class="status-icon-wrap blue" aria-hidden="true">🤖</div>
+          <div class="status-info">
+            <div class="status-value">Ready</div>
+            <div class="status-label">AI Assistant Status</div>
+          </div>
+        </div>
+
+        <div class="status-card" role="listitem">
+          <div class="status-icon-wrap purple" aria-hidden="true">📊</div>
+          <div class="status-info">
+            <div class="status-value">—</div>
+            <div class="status-label">Tax Payable / Refund</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── 3. MAIN FEATURE CARDS ─────────────────── -->
+    <section class="feature-section" aria-labelledby="featuresHeading">
+      <h2 class="section-heading" id="featuresHeading">Main Features</h2>
+      <p class="section-subheading">
+        Core modules of TaxSathi — coming online as development progresses.
       </p>
-      <div class="auth-status-pill" role="status" aria-live="polite">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-             viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2.5"
-             stroke-linecap="round" stroke-linejoin="round"
-             aria-hidden="true">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-          <polyline points="22 4 12 14.01 9 11.01"/>
-        </svg>
-        JWT token saved — session active
+
+      <div class="feature-grid" role="list">
+
+        <!-- ITR Filing Card -->
+        <article class="feature-card card-green" role="listitem" aria-labelledby="itrCardTitle">
+          <div class="feature-card-header">
+            <div class="feature-card-icon-wrap green" aria-hidden="true">📄</div>
+            <span class="coming-soon-badge">Coming Soon</span>
+          </div>
+          <div class="feature-card-body">
+            <h3 class="feature-card-title" id="itrCardTitle">ITR Filing</h3>
+            <p class="feature-card-desc">
+              File your Income Tax Return accurately and on time with
+              step-by-step AI guidance.
+            </p>
+            <ul class="feature-bullets" aria-label="ITR Filing features">
+              <li>
+                <span class="feature-bullet-dot" aria-hidden="true"></span>
+                Support for ITR-1, ITR-2 &amp; more
+              </li>
+              <li>
+                <span class="feature-bullet-dot" aria-hidden="true"></span>
+                Auto-import from Form 16 &amp; AIS
+              </li>
+              <li>
+                <span class="feature-bullet-dot" aria-hidden="true"></span>
+                One-click e-filing to IT Department
+              </li>
+            </ul>
+          </div>
+          <div class="feature-card-footer">
+            <button
+              class="btn btn-primary btn-card-cta"
+              type="button"
+              disabled
+              aria-disabled="true"
+              title="Available in upcoming milestone"
+            >
+              Start ITR Filing
+            </button>
+          </div>
+        </article>
+
+        <!-- AI Tax Assistant Card -->
+        <article class="feature-card card-amber" role="listitem" aria-labelledby="aiCardTitle">
+          <div class="feature-card-header">
+            <div class="feature-card-icon-wrap amber" aria-hidden="true">🤖</div>
+            <span class="coming-soon-badge">Coming Soon</span>
+          </div>
+          <div class="feature-card-body">
+            <h3 class="feature-card-title" id="aiCardTitle">AI Tax Assistant</h3>
+            <p class="feature-card-desc">
+              Ask any tax question in plain English and get accurate,
+              personalised answers powered by AI.
+            </p>
+            <ul class="feature-bullets" aria-label="AI Tax Assistant features">
+              <li>
+                <span class="feature-bullet-dot amber" aria-hidden="true"></span>
+                Query deductions under 80C, 80D, HRA &amp; more
+              </li>
+              <li>
+                <span class="feature-bullet-dot amber" aria-hidden="true"></span>
+                Understand TDS, capital gains &amp; exemptions
+              </li>
+              <li>
+                <span class="feature-bullet-dot amber" aria-hidden="true"></span>
+                Chat-based ITR guidance in Hindi &amp; English
+              </li>
+            </ul>
+          </div>
+          <div class="feature-card-footer">
+            <button
+              class="btn btn-primary btn-card-cta"
+              type="button"
+              disabled
+              aria-disabled="true"
+              title="Available in upcoming milestone"
+            >
+              Open AI Assistant
+            </button>
+          </div>
+        </article>
+
+        <!-- Tax Summary Card -->
+        <article class="feature-card card-blue" role="listitem" aria-labelledby="summaryCardTitle">
+          <div class="feature-card-header">
+            <div class="feature-card-icon-wrap blue" aria-hidden="true">📊</div>
+            <span class="coming-soon-badge">Coming Soon</span>
+          </div>
+          <div class="feature-card-body">
+            <h3 class="feature-card-title" id="summaryCardTitle">Tax Summary</h3>
+            <p class="feature-card-desc">
+              View a clear breakdown of your income, applicable deductions,
+              tax liability and expected refund.
+            </p>
+            <ul class="feature-bullets" aria-label="Tax Summary features">
+              <li>
+                <span class="feature-bullet-dot blue" aria-hidden="true"></span>
+                Gross income vs taxable income breakdown
+              </li>
+              <li>
+                <span class="feature-bullet-dot blue" aria-hidden="true"></span>
+                Old vs New tax regime comparison
+              </li>
+              <li>
+                <span class="feature-bullet-dot blue" aria-hidden="true"></span>
+                Estimated refund or outstanding dues
+              </li>
+            </ul>
+          </div>
+          <div class="feature-card-footer">
+            <button
+              class="btn btn-primary btn-card-cta"
+              type="button"
+              disabled
+              aria-disabled="true"
+              title="Available in upcoming milestone"
+            >
+              View Tax Summary
+            </button>
+          </div>
+        </article>
+
       </div>
-    </div>
+    </section>
 
-    <!-- Placeholder feature cards -->
-    <div class="feature-grid" aria-label="Upcoming features">
-
-      <div class="feature-card">
-        <span class="feature-card-icon" aria-hidden="true">📄</span>
-        <div class="feature-card-title">ITR Filing</div>
-        <div class="feature-card-desc">File your Income Tax Return with AI guidance</div>
-        <span class="coming-soon-badge">Coming Soon</span>
+    <!-- ── 4. GOVERNMENT COMPLIANCE STRIP ────────── -->
+    <div class="info-strip" role="note" aria-label="Security and compliance information">
+      <span class="info-strip-icon" aria-hidden="true">🏛️</span>
+      <div class="info-strip-text">
+        <strong>Secure &amp; Government Compliant</strong> &nbsp;—&nbsp;
+        TaxSathi is aligned with Income Tax Department of India guidelines.
+        All data is encrypted in transit. Your ITR is filed directly on the
+        official e-filing portal. No data is stored or shared with third parties.
       </div>
-
-      <div class="feature-card">
-        <span class="feature-card-icon" aria-hidden="true">🤖</span>
-        <div class="feature-card-title">AI Tax Assistant</div>
-        <div class="feature-card-desc">Ask questions about deductions, exemptions &amp; more</div>
-        <span class="coming-soon-badge">Coming Soon</span>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-card-icon" aria-hidden="true">📊</span>
-        <div class="feature-card-title">Tax Summary</div>
-        <div class="feature-card-desc">View your income, deductions &amp; refund estimate</div>
-        <span class="coming-soon-badge">Coming Soon</span>
-      </div>
-
     </div>
 
   </main>
 
-  <!-- JS: auth guard + sign-out -->
+  <!-- ════════════════════════════════════════════════
+       JAVASCRIPT: Auth guard + Sign out (unchanged)
+       ════════════════════════════════════════════════ -->
   <script type="module">
-    import { getToken, removeToken, isLoggedIn, signOut } from './js/auth.js';
+    import { getToken, isLoggedIn, signOut } from './js/auth.js';
 
     // ── Auth guard: redirect to login if no token ──
     if (!isLoggedIn()) {
       window.location.replace('login.html');
     }
 
-    // ── Show token status (for demo / debugging) ──
-    // (Do NOT display the actual token value in production UI)
+    // ── Populate user name/email from JWT ──────────
     const token = getToken();
     if (token) {
-      // Optionally decode email from JWT payload for display
       try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const emailEl = document.getElementById('userEmail');
-        if (payload.email && emailEl) {
-          emailEl.textContent = payload.email;
+        const payload   = JSON.parse(atob(token.split('.')[1]));
+        const emailEl   = document.getElementById('userEmail');
+        const welcomeEl = document.getElementById('welcomeUserName');
+        const email     = payload.email || null;
+
+        if (email) {
+          // Show email in nav badge
+          if (emailEl) emailEl.textContent = email;
+          // Derive first name from email (before the @) for the greeting
+          const firstName = email.split('@')[0];
+          const displayName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+          if (welcomeEl) welcomeEl.textContent = displayName;
         }
       } catch (_) {
-        // JWT may not carry email — that is fine, keep default text
+        // JWT may not carry email — keep default "User" text
       }
     }
 
-    // ── Sign out button ──
+    // ── Sign out button ────────────────────────────
     document.getElementById('signOutBtn').addEventListener('click', () => {
       signOut(); // removes token and redirects to login.html
     });
