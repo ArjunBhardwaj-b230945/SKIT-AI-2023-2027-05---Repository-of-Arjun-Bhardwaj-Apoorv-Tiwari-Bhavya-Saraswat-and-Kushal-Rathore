@@ -1,0 +1,71 @@
+{
+  "_review_notes": {
+    "scope": "AY 2026-27 (FY 2025-26) -- all figures below matched current sources and were NOT changed in value, only in structure.",
+    "changes_made": [
+      "Restructured from prose-key/string-value format ('More than Rs 50 lakhs...': '10%') to numeric min_income/max_income/rate_percentage, matching final_tax_act.json's slab format, since both feed the same tax-computation logic",
+      "Added marginal_relief block -- was completely absent from the original file, and surcharge without it silently overcharges anyone just above a threshold"
+    ],
+    "still_missing_not_fabricated": [
+      "Exact marginal relief WORKED EXAMPLES / edge-case formulas for AOP, Firm, Company categories -- only the individual/HUF principle is captured below. Verify before use for non-individual filers."
+    ]
+  },
+
+  "surcharge_rates": {
+    "individuals_huf": {
+      "old_tax_regime": [
+        {"min_income": 0, "max_income": 5000000, "rate_percentage": 0.0},
+        {"min_income": 5000001, "max_income": 10000000, "rate_percentage": 10.0},
+        {"min_income": 10000001, "max_income": 20000000, "rate_percentage": 15.0},
+        {"min_income": 20000001, "max_income": 50000000, "rate_percentage": 25.0},
+        {"min_income": 50000001, "max_income": null, "rate_percentage": 37.0}
+      ],
+      "new_tax_regime": [
+        {"min_income": 0, "max_income": 5000000, "rate_percentage": 0.0},
+        {"min_income": 5000001, "max_income": 10000000, "rate_percentage": 10.0},
+        {"min_income": 10000001, "max_income": 20000000, "rate_percentage": 15.0},
+        {"min_income": 20000001, "max_income": null, "rate_percentage": 25.0}
+      ],
+      "_note_new_regime": "Caps at 25% above 2 crore -- the 37% top slab does not exist under the new regime."
+    },
+    "aop_with_company_members_only": [
+      {"min_income": 0, "max_income": 10000000, "rate_percentage": 0.0},
+      {"min_income": 10000001, "max_income": null, "rate_percentage": 15.0}
+    ],
+    "firm_llp_local_authority": [
+      {"min_income": 0, "max_income": 10000000, "rate_percentage": 0.0},
+      {"min_income": 10000001, "max_income": null, "rate_percentage": 12.0}
+    ],
+    "domestic_company": {
+      "normal_provisions": [
+        {"min_income": 0, "max_income": 10000000, "rate_percentage": 0.0},
+        {"min_income": 10000001, "max_income": 100000000, "rate_percentage": 7.0},
+        {"min_income": 100000001, "max_income": null, "rate_percentage": 12.0}
+      ],
+      "section_115BAA_or_115BAB": {
+        "rate_percentage": 10.0,
+        "applies_to": "any income level, flat rate"
+      }
+    },
+    "foreign_company": [
+      {"min_income": 0, "max_income": 10000000, "rate_percentage": 0.0},
+      {"min_income": 10000001, "max_income": 100000000, "rate_percentage": 2.0},
+      {"min_income": 100000001, "max_income": null, "rate_percentage": 5.0}
+    ],
+    "special_capital_gains_and_dividends": {
+      "description": "Dividend income and capital gains under sections 111A, 112, 112A",
+      "max_surcharge_rate_percentage": 15.0,
+      "applies_to": "both old and new regime; caps the surcharge attributable to THIS income specifically, not necessarily the taxpayer's entire surcharge rate"
+    }
+  },
+
+  "marginal_relief": {
+    "principle": "Surcharge cannot push total tax (incl. surcharge) on income just above a threshold higher than: [tax at the threshold] + [the actual amount earned above the threshold]. Relief = (tax + surcharge computed normally) - (tax at threshold + excess income over threshold).",
+    "applies_at_every_surcharge_threshold": true,
+    "worked_example": {
+      "scenario": "Individual, old regime, total income Rs 51,00,000 (Rs 1,00,000 over the Rs 50L threshold)",
+      "tax_without_relief_at_10pct_surcharge": "surcharge pushes total above what a Rs 50L earner would pay, by more than the Rs 1,00,000 excess income itself",
+      "relief_applied": "caps the extra tax so it never exceeds the Rs 1,00,000 excess income",
+      "source_figures": "illustrative structure only -- exact rupee example not reproduced here; verify against current source before hardcoding into a calculator"
+    }
+  }
+}
