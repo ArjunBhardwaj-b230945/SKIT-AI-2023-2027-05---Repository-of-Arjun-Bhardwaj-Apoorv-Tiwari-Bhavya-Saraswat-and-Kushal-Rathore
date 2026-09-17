@@ -73,18 +73,17 @@ def _build_itr_response(thread_id: str, final_state: TaxSathiState) -> Dict[str,
             for f in draft.flags
         ]
 
-    # Separate Category A (blocking) errors for the UI to highlight
     blocking = [f for f in flags if f["severity"] == "error" and f["stage"] == "itr_validation"]
 
     return {
-        "thread_id":        thread_id,
-        "status":           "complete" if final_state.get("pipeline_complete") else "incomplete",
-        "pdf_bytes":        pdf_bytes,
-        "flags":            flags,
-        "blocking_errors":  blocking,
-        "errors":           errors,
+        "thread_id":          thread_id,
+        "status":             "complete" if final_state.get("pipeline_complete") else "incomplete",
+        "pdf_bytes":          pdf_bytes,
+        "flags":              flags,
+        "blocking_errors":    blocking,
+        "errors":             errors,
         "cbdt_error_summary": final_state.get("cbdt_error_summary"),
-        "loop_count":       final_state.get("loop_count", 0),
+        "loop_count":         final_state.get("loop_count", 0),
     }
 
 
@@ -97,9 +96,8 @@ def _detect_interrupt(thread_id: str) -> Optional[Dict[str, Any]]:
     try:
         snapshot = app.get_state(config)
         if not snapshot.next:
-            return None  # graph is done — not interrupted
+            return None
 
-        # Find interrupt payload from pending tasks
         for task in getattr(snapshot, "tasks", []):
             interrupts = getattr(task, "interrupts", [])
             if interrupts:
@@ -119,60 +117,84 @@ def _detect_interrupt(thread_id: str) -> Optional[Dict[str, Any]]:
 
 def run_chatbot(
     user_message: str,
-    conversation_history: Optional[List[dict]] = None,
     session_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Runs a single chatbot turn through the unified graph.
+    Runs a single chatbot turn with full persistent conversation memory
+    via Supabase PostgreSQL.
 
     Called by: POST /api/chat
 
+    HOW CONTINUITY WORKS
+    ---------------------
+    The PostgreSQL checkpointer stores the full graph state (including all
+    messages) after every node, keyed by thread_id (= session_id).
+
+    First message  : pass session_id=None -> new UUID generated and returned.
+                     Frontend stores this UUID.
+    Follow-up turns: pass the same session_id -> checkpointer loads prior
+                     state from Supabase and appends the new message.
+                     Conversation history survives server restarts.
+
+    Frontend only sends: { "message": "...", "session_id": "..." }
+    No conversation_history array needed -- the DB handles it.
+
     Parameters
     ----------
-    user_message         : The user's current question.
-    conversation_history : All previous turns as [{"role": ..., "content": ...}].
-                           Include full history so Gemini has conversation context.
-    session_id           : Optional session ID for logging. Not used for checkpointing
-                           (chatbot path has no interrupts — no checkpointer needed).
+    user_message : Current user question (plain text).
+    session_id   : UUID from previous turn. None = start a new conversation.
 
     Returns
     -------
     {
-        "response"   : str   — assistant's formatted answer with disclaimer
-        "session_id" : str   — echo back the session ID
-        "errors"     : list  — any non-fatal pipeline errors
+        "response"   : str  -- formatted answer with disclaimer
+        "session_id" : str  -- store this; send back on every follow-up turn
+        "errors"     : list -- non-fatal errors
     }
     """
-    session_id = session_id or str(uuid.uuid4())
+    is_new_session = session_id is None
+    session_id     = session_id or str(uuid.uuid4())
+    config         = {"configurable": {"thread_id": session_id}}
 
-    history = list(conversation_history or [])
-    history.append({"role": "user", "content": user_message})
+    if is_new_session:
+        # ── New conversation ──────────────────────────────────────────────────
+        # Checkpointer has no prior state for this thread_id yet.
+        # Pass the complete initial state so every key is populated.
+        invoke_input: TaxSathiState = {
+            "intent":             "chatbot",
+            "form16_list":        [],
+            "form26as":           None,
+            "user_input":         None,
+            "filing_date_str":    None,
+            "reconciled":         None,
+            "draft_itr1":         None,
+            "pdf_bytes":          None,
+            "cbdt_error_summary": None,
+            "loop_count":         0,
+            "max_loops":          3,
+            "messages":           [{"role": "user", "content": user_message}],
+            "query":              None,
+            "rag_context":        None,
+            "chat_response":      None,
+            "errors":             [],
+            "pipeline_complete":  False,
+        }
+    else:
+        # ── Existing conversation ─────────────────────────────────────────────
+        # Send ONLY the new user message. The checkpointer loads all previous
+        # state (including full message history) from Supabase automatically.
+        # messages uses operator.add so the new message is APPENDED to existing
+        # history. Never pass full history here — that would duplicate messages.
+        invoke_input = {
+            "messages":          [{"role": "user", "content": user_message}],
+            "query":             None,
+            "rag_context":       None,
+            "chat_response":     None,
+            "pipeline_complete": False,
+        }
 
-    initial_state: TaxSathiState = {
-        "intent":             "chatbot",
-        "form16_list":        [],
-        "form26as":           None,
-        "user_input":         None,
-        "filing_date_str":    None,
-        "reconciled":         None,
-        "draft_itr1":         None,
-        "pdf_bytes":          None,
-        "cbdt_error_summary": None,
-        "loop_count":         0,
-        "max_loops":          3,
-        "messages":           history,
-        "query":              None,
-        "rag_context":        None,
-        "chat_response":      None,
-        "errors":             [],
-        "pipeline_complete":  False,
-    }
-
-    # Chatbot needs a config with thread_id even though it has no interrupts,
-    # because the graph is compiled with a checkpointer (MemorySaver).
-    config = {"configurable": {"thread_id": session_id}}
     try:
-        final_state = app.invoke(initial_state, config=config)
+        final_state = app.invoke(invoke_input, config=config)
     except Exception as e:
         return {
             "response":   "I encountered an error. Please try again.",
@@ -180,8 +202,7 @@ def run_chatbot(
             "errors":     [f"Chatbot pipeline crashed: {str(e)}"],
         }
 
-    # Extract last assistant message
-    all_messages = final_state.get("messages", [])
+    all_messages   = final_state.get("messages", [])
     last_assistant = next(
         (m["content"] for m in reversed(all_messages) if m.get("role") == "assistant"),
         "I could not generate a response. Please try again.",
@@ -189,7 +210,7 @@ def run_chatbot(
 
     return {
         "response":   last_assistant,
-        "session_id": session_id,
+        "session_id": session_id,   # frontend must store and send back each turn
         "errors":     final_state.get("errors", []),
     }
 
@@ -213,31 +234,26 @@ def run_itr_pipeline(
     Parameters
     ----------
     form16_list     : Parsed Form 16 schema(s) from Kushal's LlamaParser.
-                      List supports multiple employers (job change mid-year).
     form26as        : Parsed Form 26AS schema from Kushal's LlamaParser.
-    user_input      : Taxpayer-supplied fields (DOB, Aadhaar, bank accounts, etc.)
-                      that cannot be extracted from Form 16 or Form 26AS.
+    user_input      : Taxpayer-supplied fields (DOB, Aadhaar, bank accounts etc.)
     filing_date_str : Date the return will be filed — DD/MM/YYYY.
-                      Used to compute 234A/B/F interest/fees.
-                      Defaults to today's date if not provided.
-    thread_id       : LangGraph thread ID for checkpointing.
-                      Auto-generated if None. MUST be stored by the caller
-                      and passed to resume_pipeline() if the graph is interrupted.
+    thread_id       : Auto-generated if None. Store and pass to resume_pipeline()
+                      if the graph is interrupted.
 
     Returns
     -------
     {
-        "thread_id"        : str   — store this; pass to resume_pipeline() if interrupted
-        "status"           : str   — "complete" | "incomplete" | "interrupted" | "error"
-        "interrupted"      : bool  — True if graph paused at an interrupt node
-        "interrupt_node"   : str   — which node triggered the interrupt
-        "interrupt_message": str   — human-readable message to show the user
-        "pdf_bytes"        : bytes — filled ITR-1 PDF (None if not yet generated)
-        "flags"            : list  — all ValidationFlag dicts from draft_itr1
-        "blocking_errors"  : list  — Category A CBDT errors that blocked generation
-        "errors"           : list  — pipeline error strings
-        "cbdt_error_summary": str — formatted summary of CBDT errors for UI
-        "loop_count"       : int  — how many times the loop-back has triggered
+        "thread_id"         : str
+        "status"            : "complete" | "incomplete" | "interrupted" | "error"
+        "interrupted"       : bool
+        "interrupt_node"    : str   — which node triggered the interrupt
+        "interrupt_message" : str   — message to show the user
+        "pdf_bytes"         : bytes
+        "flags"             : list
+        "blocking_errors"   : list
+        "errors"            : list
+        "cbdt_error_summary": str
+        "loop_count"        : int
     }
     """
     thread_id = thread_id or str(uuid.uuid4())
@@ -267,37 +283,35 @@ def run_itr_pipeline(
         final_state = app.invoke(initial_state, config=config)
     except Exception as e:
         return {
-            "thread_id":         thread_id,
-            "status":            "error",
-            "interrupted":       False,
-            "interrupt_node":    None,
-            "interrupt_message": None,
-            "pdf_bytes":         None,
-            "flags":             [],
-            "blocking_errors":   [],
-            "errors":            [f"Pipeline crashed: {str(e)}"],
+            "thread_id":          thread_id,
+            "status":             "error",
+            "interrupted":        False,
+            "interrupt_node":     None,
+            "interrupt_message":  None,
+            "pdf_bytes":          None,
+            "flags":              [],
+            "blocking_errors":    [],
+            "errors":             [f"Pipeline crashed: {str(e)}"],
             "cbdt_error_summary": None,
-            "loop_count":        0,
+            "loop_count":         0,
         }
 
-    # ── Check if graph paused at an interrupt node ────────────────────────────
     interrupt_info = _detect_interrupt(thread_id)
     if interrupt_info:
         return {
-            "thread_id":         thread_id,
-            "status":            "interrupted",
-            "interrupted":       True,
-            "interrupt_node":    interrupt_info.get("interrupt_node"),
-            "interrupt_message": interrupt_info.get("payload"),
-            "pdf_bytes":         None,
-            "flags":             [],
-            "blocking_errors":   [],
-            "errors":            [],
+            "thread_id":          thread_id,
+            "status":             "interrupted",
+            "interrupted":        True,
+            "interrupt_node":     interrupt_info.get("interrupt_node"),
+            "interrupt_message":  interrupt_info.get("payload"),
+            "pdf_bytes":          None,
+            "flags":              [],
+            "blocking_errors":    [],
+            "errors":             [],
             "cbdt_error_summary": None,
-            "loop_count":        final_state.get("loop_count", 0),
+            "loop_count":         final_state.get("loop_count", 0),
         }
 
-    # ── Normal completion ─────────────────────────────────────────────────────
     response = _build_itr_response(thread_id, final_state)
     response.update({
         "interrupted":       False,
@@ -316,71 +330,56 @@ def resume_pipeline(
     corrected_data: Dict[str, Any],
 ) -> Dict[str, Any]:
     """
-    Resumes an ITR pipeline that was paused by an interrupt node.
+    Resumes an ITR pipeline paused by an interrupt node.
 
-    Handles BOTH interrupt types with the same interface:
+    Handles BOTH interrupt types:
       1. cross_validation_node (PAN mismatch):
            corrected_data = {
-               "form16_list": [corrected_Form16Schema, ...],
-               "form26as":    corrected_Form26ASSchema,
+               "form16_list": [...],
+               "form26as":    ...,
            }
-
-      2. show_errors_node (CBDT Category A errors after loop):
+      2. show_errors_node (CBDT Category A errors):
            corrected_data = {
-               "user_input":   updated_UserProvidedInfo,
-               "form16_list":  [re_uploaded_Form16Schema, ...],  # if docs changed
-               "form26as":     re_uploaded_Form26ASSchema,        # if docs changed
+               "user_input":  ...,
+               "form16_list": [...],   # only if documents changed
+               "form26as":    ...,     # only if documents changed
            }
 
     Called by: POST /api/resume
-
-    Parameters
-    ----------
-    thread_id      : Returned by run_itr_pipeline(). Identifies the paused graph.
-    corrected_data : Dict of state keys and their corrected values.
-                     Only include fields that actually changed.
-
-    Returns
-    -------
-    Same dict structure as run_itr_pipeline().
     """
     config = {"configurable": {"thread_id": thread_id}}
 
     try:
-        final_state = app.invoke(
-            Command(resume=corrected_data),
-            config=config,
-        )
+        final_state = app.invoke(Command(resume=corrected_data), config=config)
     except Exception as e:
         return {
-            "thread_id":         thread_id,
-            "status":            "error",
-            "interrupted":       False,
-            "interrupt_node":    None,
-            "interrupt_message": None,
-            "pdf_bytes":         None,
-            "flags":             [],
-            "blocking_errors":   [],
-            "errors":            [f"Resume crashed: {str(e)}"],
+            "thread_id":          thread_id,
+            "status":             "error",
+            "interrupted":        False,
+            "interrupt_node":     None,
+            "interrupt_message":  None,
+            "pdf_bytes":          None,
+            "flags":              [],
+            "blocking_errors":    [],
+            "errors":             [f"Resume crashed: {str(e)}"],
             "cbdt_error_summary": None,
-            "loop_count":        0,
+            "loop_count":         0,
         }
 
-    # Check if graph paused again (e.g. another CBDT error after correction)
     interrupt_info = _detect_interrupt(thread_id)
     if interrupt_info:
         return {
-            "thread_id":         thread_id,
-            "status":            "interrupted",
-            "interrupted":       True,
-            "interrupt_node":    interrupt_info.get("interrupt_node"),
-            "interrupt_message": interrupt_info.get("payload"),
-            "pdf_bytes":         None,
-            "flags":             [],
-            "blocking_errors":   [],
-            "errors":            [],
+            "thread_id":          thread_id,
+            "status":             "interrupted",
+            "interrupted":        True,
+            "interrupt_node":     interrupt_info.get("interrupt_node"),
+            "interrupt_message":  interrupt_info.get("payload"),
+            "pdf_bytes":          None,
+            "flags":              [],
+            "blocking_errors":    [],
+            "errors":             [],
             "cbdt_error_summary": final_state.get("cbdt_error_summary"),
-            "loop_count":        final_state.get("loop_count", 0),
+            "loop_count":         final_state.get("loop_count", 0),
         }
 
     response = _build_itr_response(thread_id, final_state)
@@ -400,11 +399,8 @@ if __name__ == "__main__":
     """
     Run: python -m pipeline.main
 
-    Tests only the chatbot path (no documents needed).
-    Requires GOOGLE_API_KEY to be set in your environment.
-
-    For ITR pipeline testing, you need real Form16Schema + Form26ASSchema
-    objects from Kushal's parser. Test that separately once parsing is ready.
+    Tests chatbot only (no documents needed).
+    Requires GOOGLE_API_KEY and DATABASE_URL to be set.
     """
     import os
 
@@ -412,29 +408,38 @@ if __name__ == "__main__":
     print("TaxSathi — Pipeline Smoke Test")
     print("=" * 60)
 
+    missing = []
     if not os.getenv("GOOGLE_API_KEY"):
-        print("\n⚠  GOOGLE_API_KEY is not set.")
-        print("   export GOOGLE_API_KEY=your_key_here\n")
+        missing.append("GOOGLE_API_KEY")
+    if not os.getenv("DATABASE_URL"):
+        missing.append("DATABASE_URL")
+
+    if missing:
+        print(f"\n⚠  Missing environment variables: {', '.join(missing)}")
+        print("   Set them first:")
+        for var in missing:
+            print(f"   $env:{var} = \"your_value_here\"")
+        print()
     else:
-        print("\n[1] Chatbot — single turn")
+        print("\n[1] Chatbot — first message (new session)")
         result = run_chatbot(
             user_message="What is the standard deduction limit for salaried employees under the new regime?",
         )
-        print(f"   Status : {'OK' if not result['errors'] else 'ERRORS'}")
-        print(f"   Reply  : {result['response'][:300]}...")
+        print(f"   Status     : {'OK' if not result['errors'] else 'ERRORS'}")
+        print(f"   Session ID : {result['session_id']}")
+        print(f"   Reply      : {result['response'][:300]}...")
         if result["errors"]:
-            print(f"   Errors : {result['errors']}")
+            print(f"   Errors     : {result['errors']}")
 
-        print("\n[2] Chatbot — multi-turn (follow-up question)")
+        print("\n[2] Chatbot — follow-up (same session, DB loads history)")
         result2 = run_chatbot(
-            user_message="What about under the old regime?",
-            conversation_history=[
-                {"role": "user",      "content": "What is the standard deduction limit for salaried employees under the new regime?"},
-                {"role": "assistant", "content": result["response"]},
-            ],
+            user_message="What about the standard deduction under the old regime?",
+            session_id=result["session_id"],   # same session_id — DB loads history
         )
-        print(f"   Status : {'OK' if not result2['errors'] else 'ERRORS'}")
-        print(f"   Reply  : {result2['response'][:300]}...")
+        print(f"   Status     : {'OK' if not result2['errors'] else 'ERRORS'}")
+        print(f"   Reply      : {result2['response'][:300]}...")
+        if result2["errors"]:
+            print(f"   Errors     : {result2['errors']}")
 
     print("\n" + "=" * 60)
     print("Smoke test complete.")
