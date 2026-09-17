@@ -1,76 +1,67 @@
-from datetime import datetime, timedelta, timezone
-import os
-
-from dotenv import load_dotenv
 from fastapi import HTTPException, status
-from jose import jwt
 from passlib.context import CryptContext
 
-load_dotenv()
+
+# ============================================================
+# Password Configuration
+# ============================================================
 
 pwd_context = CryptContext(
     schemes=["bcrypt"],
     deprecated="auto"
 )
 
-JWT_SECRET = os.getenv(
-    "JWT_SECRET",
-    "development_secret"
-)
 
-JWT_ALGORITHM = os.getenv(
-    "JWT_ALGORITHM",
-    "HS256"
-)
+# ============================================================
+# Temporary User Storage
+# ============================================================
 
-JWT_EXPIRES_MINUTES = int(
-    os.getenv("JWT_EXPIRES_MINUTES", "60")
-)
-
-# Temporary in-memory user storage
+# Temporary in-memory storage for the initial user-management
+# implementation. PostgreSQL integration will be added later.
 users = []
 
 
-def hash_password(password: str):
-    return pwd_context.hash(password)
+# ============================================================
+# Email Utility Functions
+# ============================================================
+
+def normalize_email(email: str) -> str:
+    """
+    Normalize an email address before storing it.
+    """
+
+    return email.strip().lower()
 
 
-def verify_password(password: str, hashed_password: str):
-    return pwd_context.verify(password, hashed_password)
+def is_valid_email_format(email: str) -> bool:
+    """
+    Perform a basic email format check.
 
+    Detailed email validation is handled by Pydantic
+    through EmailStr at the API layer.
+    """
 
-def create_access_token(user):
-    expire = datetime.now(timezone.utc) + timedelta(
-        minutes=JWT_EXPIRES_MINUTES
+    email = normalize_email(email)
+
+    return (
+        "@" in email
+        and "." in email.split("@")[-1]
     )
 
-    payload = {
-        "sub": str(user["id"]),
-        "email": user["email"],
-        "role": user["role"],
-        "exp": expire
-    }
 
-    token = jwt.encode(
-        payload,
-        JWT_SECRET,
-        algorithm=JWT_ALGORITHM
-    )
+# ============================================================
+# Password Validation
+# ============================================================
 
-    return token
+def validate_password(password: str) -> None:
+    """
+    Validate the basic password requirements.
+    """
 
-
-def signup_user(
-    email: str,
-    password: str,
-    role: str = "user"
-):
-    email = email.strip().lower()
-
-    if not email or not password:
+    if not password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email and password are required"
+            detail="Password is required"
         )
 
     if len(password) < 6:
@@ -79,62 +70,209 @@ def signup_user(
             detail="Password must contain at least 6 characters"
         )
 
-    existing_user = next(
-        (user for user in users if user["email"] == email),
-        None
+
+# ============================================================
+# Password Security
+# ============================================================
+
+def hash_password(password: str) -> str:
+    """
+    Generate a secure password hash.
+
+    Plain-text passwords are never stored in the user
+    collection.
+    """
+
+    return pwd_context.hash(password)
+
+
+def verify_password(
+    password: str,
+    hashed_password: str
+) -> bool:
+    """
+    Verify a password against its stored hash.
+    """
+
+    return pwd_context.verify(
+        password,
+        hashed_password
     )
 
+
+# ============================================================
+# User Search Functions
+# ============================================================
+
+def find_user_by_email(email: str):
+    """
+    Search for a user using their email address.
+    """
+
+    normalized_email = normalize_email(email)
+
+    for user in users:
+
+        if user["email"] == normalized_email:
+            return user
+
+    return None
+
+
+def find_user_by_id(user_id: int):
+    """
+    Search for a user using their unique identifier.
+    """
+
+    for user in users:
+
+        if user["id"] == user_id:
+            return user
+
+    return None
+
+
+# ============================================================
+# User Validation
+# ============================================================
+
+def validate_user_data(
+    email: str,
+    password: str
+) -> None:
+    """
+    Validate the information received during registration.
+    """
+
+    normalized_email = normalize_email(email)
+
+    if not normalized_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email is required"
+        )
+
+    if not is_valid_email_format(normalized_email):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid email format"
+        )
+
+    validate_password(password)
+
+
+# ============================================================
+# User Creation
+# ============================================================
+
+def create_user(
+    email: str,
+    password: str,
+    role: str = "user"
+):
+    """
+    Create a new user and store the user temporarily.
+
+    Database persistence will be introduced during the
+    Database Integration phase.
+    """
+
+    email = normalize_email(email)
+
+    validate_user_data(
+        email,
+        password
+    )
+
+    existing_user = find_user_by_email(email)
+
     if existing_user:
+
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="User already exists"
         )
 
     if role not in ["user", "admin"]:
+
         role = "user"
 
+    user_id = len(users) + 1
+
+    hashed_password = hash_password(password)
+
     user = {
-        "id": len(users) + 1,
+        "id": user_id,
         "email": email,
-        "password": hash_password(password),
+        "password": hashed_password,
         "role": role
     }
 
     users.append(user)
 
-    token = create_access_token(user)
+    return user
+
+
+# ============================================================
+# Public User Response
+# ============================================================
+
+def serialize_user(user: dict) -> dict:
+    """
+    Convert internal user data into a safe API response.
+
+    Password hashes are intentionally excluded.
+    """
 
     return {
-        "success": True,
-        "message": "Signup successful",
-        "token": token
+        "id": user["id"],
+        "email": user["email"],
+        "role": user["role"]
     }
 
 
-def signin_user(email: str, password: str):
-    email = email.strip().lower()
+# ============================================================
+# User Registration
+# ============================================================
 
-    user = next(
-        (user for user in users if user["email"] == email),
-        None
+def signup_user(
+    email: str,
+    password: str,
+    role: str = "user"
+):
+    """
+    Register a new user.
+    """
+
+    user = create_user(
+        email=email,
+        password=password,
+        role=role
     )
 
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password"
-        )
-
-    if not verify_password(password, user["password"]):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password"
-        )
-
-    token = create_access_token(user)
-
     return {
         "success": True,
-        "message": "Signin successful",
-        "token": token
+        "message": "User registered successfully",
+        "user": serialize_user(user)
     }
+
+
+# ============================================================
+# Basic User Retrieval
+# ============================================================
+
+def get_user_profile(user_id: int):
+    """
+    Retrieve basic information for a registered user.
+    """
+
+    user = find_user_by_id(user_id)
+
+    if not user:
+
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    return serialize_user(user)
