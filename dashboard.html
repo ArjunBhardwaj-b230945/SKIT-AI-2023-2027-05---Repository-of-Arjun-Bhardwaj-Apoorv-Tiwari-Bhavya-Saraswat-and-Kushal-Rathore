@@ -520,8 +520,442 @@
       font-weight: var(--font-weight-semibold);
     }
 
+
     /* =====================================================
-       RESPONSIVE BREAKPOINTS
+       40% MILESTONE — Additional styles
+       User Information display + Feature Detail sections
+       ===================================================== */
+
+    /* ── User Information Card ─────────────────────── */
+    .user-info-section {
+      margin-bottom: var(--space-8);
+    }
+
+    .user-info-card {
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6) var(--space-8);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      align-items: center;
+      gap: var(--space-6);
+    }
+
+    /* Avatar circle — initials only, no image needed */
+    .user-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-primary) 0%, #2D9E60 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: white;
+      flex-shrink: 0;
+      letter-spacing: -0.02em;
+      user-select: none;
+    }
+
+    .user-info-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-info-name {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      letter-spacing: -0.01em;
+      margin-bottom: var(--space-1);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .user-info-email {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-3);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .user-info-badges {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .user-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      padding: 3px var(--space-3);
+      border-radius: var(--radius-full);
+      border: 1px solid;
+    }
+
+    .user-badge-pill.active {
+      background-color: var(--color-success-bg);
+      color: var(--color-success);
+      border-color: #A5D6A7;
+    }
+
+    .user-badge-pill.role {
+      background-color: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      border-color: #A8D5BE;
+    }
+
+    .user-badge-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background-color: currentColor;
+      flex-shrink: 0;
+    }
+
+    .user-info-meta {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: var(--space-2);
+    }
+
+    .user-meta-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .user-meta-label {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .user-meta-value {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    /* ── Feature Detail Sections ───────────────────── */
+    .feature-detail-section {
+      margin-bottom: var(--space-8);
+    }
+
+    /* Each expanded feature block */
+    .feature-detail-block {
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .feature-detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-5) var(--space-6);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .feature-detail-header-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .feature-detail-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .feature-detail-icon.green  { background-color: var(--color-primary-light); }
+    .feature-detail-icon.amber  { background-color: #FEF3C7; }
+    .feature-detail-icon.blue   { background-color: #EFF6FF; }
+
+    .feature-detail-header-title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .feature-detail-header-desc {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-top: 2px;
+    }
+
+    .feature-detail-body {
+      padding: var(--space-6);
+    }
+
+    /* Step grid inside detail block */
+    .feature-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+
+    .feature-step {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-2);
+    }
+
+    .feature-step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-bold);
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .feature-step-number.green  { background-color: var(--color-primary); }
+    .feature-step-number.amber  { background-color: var(--color-accent-dark); }
+    .feature-step-number.blue   { background-color: #3B82F6; }
+
+    .feature-step-title {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .feature-step-desc {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      line-height: var(--line-height-relaxed);
+    }
+
+    /* Info note row inside detail block */
+    .feature-info-note {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      background-color: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+
+    .feature-info-note-icon {
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .feature-info-note-text {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--line-height-relaxed);
+    }
+
+    .feature-detail-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-6);
+      border-top: 1px solid var(--color-border);
+      background-color: var(--color-bg);
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .feature-detail-footer-note {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+
+    /* AI chat preview mock */
+    .ai-chat-preview {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-5);
+    }
+
+    .ai-chat-preview-header {
+      background-color: var(--color-bg);
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .ai-chat-preview-body {
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .chat-bubble {
+      max-width: 80%;
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+      font-size: var(--font-size-sm);
+      line-height: var(--line-height-relaxed);
+    }
+
+    .chat-bubble.user-bubble {
+      background-color: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      align-self: flex-end;
+      border-bottom-right-radius: var(--radius-sm);
+    }
+
+    .chat-bubble.ai-bubble {
+      background-color: var(--color-bg);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-primary);
+      align-self: flex-start;
+      border-bottom-left-radius: var(--radius-sm);
+    }
+
+    .chat-bubble-label {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--space-1);
+      opacity: 0.7;
+    }
+
+    /* Tax summary placeholder rows */
+    .summary-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-5);
+    }
+
+    .summary-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) var(--space-5);
+      border-bottom: 1px solid var(--color-border);
+      gap: var(--space-4);
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .summary-row.total-row {
+      background-color: var(--color-primary-light);
+      font-weight: var(--font-weight-bold);
+    }
+
+    .summary-row-label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      flex: 1;
+    }
+
+    .summary-row.total-row .summary-row-label {
+      color: var(--color-primary-dark);
+    }
+
+    .summary-row-value {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-muted);
+      font-style: italic;
+      white-space: nowrap;
+    }
+
+    .summary-row.total-row .summary-row-value {
+      color: var(--color-primary-dark);
+    }
+
+    /* =====================================================
+       RESPONSIVE — 40% additions
+       ===================================================== */
+
+    @media (max-width: 900px) {
+      .user-info-card {
+        flex-wrap: wrap;
+        gap: var(--space-4);
+      }
+
+      .user-info-meta {
+        align-items: flex-start;
+        flex-direction: row;
+        gap: var(--space-6);
+        width: 100%;
+      }
+
+      .user-meta-item {
+        align-items: flex-start;
+      }
+
+      .feature-steps {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .user-info-card {
+        padding: var(--space-4) var(--space-4);
+      }
+
+      .user-info-meta {
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+
+      .feature-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+      }
+
+      .feature-detail-footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    /* =====================================================
+       RESPONSIVE BREAKPOINTS (existing — unchanged)
        ===================================================== */
 
     /* Laptop / smaller desktop (≤ 1200px) */
@@ -767,7 +1201,271 @@
       </div>
     </section>
 
-    <!-- ── 3. MAIN FEATURE CARDS ─────────────────── -->
+    <!-- ── 3. USER INFORMATION  [40%] ────────────── -->
+    <section class="user-info-section" aria-labelledby="userInfoHeading">
+      <h2 class="section-heading" id="userInfoHeading">Account Information</h2>
+      <p class="section-subheading">
+        Your authenticated session details derived from your login credentials.
+      </p>
+
+      <div class="user-info-card">
+
+        <!-- Avatar: initials generated by JS -->
+        <div class="user-avatar" id="userAvatarInitials" aria-hidden="true">U</div>
+
+        <!-- Details -->
+        <div class="user-info-details">
+          <div class="user-info-name" id="userInfoName">User</div>
+          <div class="user-info-email" id="userInfoEmail">—</div>
+          <div class="user-info-badges">
+            <span class="user-badge-pill active">
+              <span class="user-badge-dot" aria-hidden="true"></span>
+              Session Active
+            </span>
+            <span class="user-badge-pill role">
+              Taxpayer
+            </span>
+          </div>
+        </div>
+
+        <!-- Right-aligned meta -->
+        <div class="user-info-meta" aria-label="Account metadata">
+          <div class="user-meta-item">
+            <span class="user-meta-label">Account Type</span>
+            <span class="user-meta-value">Individual</span>
+          </div>
+          <div class="user-meta-item">
+            <span class="user-meta-label">Auth Status</span>
+            <span class="user-meta-value" style="color: var(--color-success);">✓ Verified</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── 4. FEATURE DETAIL SECTIONS  [40%] ──────── -->
+    <section class="feature-detail-section" aria-labelledby="featureDetailHeading">
+      <h2 class="section-heading" id="featureDetailHeading">Feature Overview</h2>
+      <p class="section-subheading">
+        Detailed view of each module — functionality will be enabled in upcoming milestones.
+      </p>
+
+      <!-- ── ITR Filing Detail Block ── -->
+      <div class="feature-detail-block" style="margin-bottom: var(--space-5);" aria-labelledby="itrDetailTitle">
+        <div class="feature-detail-header">
+          <div class="feature-detail-header-left">
+            <div class="feature-detail-icon green" aria-hidden="true">📄</div>
+            <div>
+              <div class="feature-detail-header-title" id="itrDetailTitle">ITR Filing</div>
+              <div class="feature-detail-header-desc">Step-by-step AI-guided Income Tax Return filing</div>
+            </div>
+          </div>
+          <span class="coming-soon-badge">Coming Soon</span>
+        </div>
+
+        <div class="feature-detail-body">
+          <!-- How it works steps -->
+          <p style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); margin-bottom: var(--space-3);">
+            How it works
+          </p>
+          <div class="feature-steps" aria-label="ITR filing steps">
+            <div class="feature-step">
+              <span class="feature-step-number green" aria-hidden="true">1</span>
+              <div class="feature-step-title">Import Documents</div>
+              <div class="feature-step-desc">Upload Form 16, AIS, 26AS or enter income details manually.</div>
+            </div>
+            <div class="feature-step">
+              <span class="feature-step-number green" aria-hidden="true">2</span>
+              <div class="feature-step-title">AI Review</div>
+              <div class="feature-step-desc">AI validates your data, finds deductions and suggests the right ITR form.</div>
+            </div>
+            <div class="feature-step">
+              <span class="feature-step-number green" aria-hidden="true">3</span>
+              <div class="feature-step-title">Review &amp; Confirm</div>
+              <div class="feature-step-desc">Review your pre-filled return line by line before submission.</div>
+            </div>
+            <div class="feature-step">
+              <span class="feature-step-number green" aria-hidden="true">4</span>
+              <div class="feature-step-title">e-File</div>
+              <div class="feature-step-desc">Submit directly to the Income Tax Department's e-filing portal.</div>
+            </div>
+          </div>
+
+          <!-- Info note -->
+          <div class="feature-info-note" role="note">
+            <span class="feature-info-note-icon" aria-hidden="true">ℹ️</span>
+            <p class="feature-info-note-text">
+              Supports ITR-1 (Sahaj) for salaried individuals and ITR-2 for capital gains &amp; multiple
+              income sources. Additional ITR forms will be added in later releases.
+              No actual filing is possible until this feature is enabled.
+            </p>
+          </div>
+        </div>
+
+        <div class="feature-detail-footer">
+          <span class="feature-detail-footer-note">
+            ITR Filing will be available in an upcoming development milestone.
+          </span>
+          <button
+            class="btn btn-primary btn-sm btn-card-cta"
+            type="button"
+            disabled
+            aria-disabled="true"
+            title="Not yet available"
+            style="width: auto; padding: var(--space-2) var(--space-5);"
+          >
+            Start Filing
+          </button>
+        </div>
+      </div>
+
+      <!-- ── AI Tax Assistant Detail Block ── -->
+      <div class="feature-detail-block" style="margin-bottom: var(--space-5);" aria-labelledby="aiDetailTitle">
+        <div class="feature-detail-header">
+          <div class="feature-detail-header-left">
+            <div class="feature-detail-icon amber" aria-hidden="true">🤖</div>
+            <div>
+              <div class="feature-detail-header-title" id="aiDetailTitle">AI Tax Assistant</div>
+              <div class="feature-detail-header-desc">Natural-language tax guidance powered by AI</div>
+            </div>
+          </div>
+          <span class="coming-soon-badge">Coming Soon</span>
+        </div>
+
+        <div class="feature-detail-body">
+          <!-- Chat preview mockup (static, not interactive) -->
+          <p style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); margin-bottom: var(--space-3);">
+            Example conversation preview
+          </p>
+          <div class="ai-chat-preview" role="img" aria-label="Static preview of AI Tax Assistant conversation">
+            <div class="ai-chat-preview-header">Preview — not interactive</div>
+            <div class="ai-chat-preview-body">
+              <div class="chat-bubble user-bubble">
+                <div class="chat-bubble-label">You</div>
+                Can I claim deduction for my health insurance premium?
+              </div>
+              <div class="chat-bubble ai-bubble">
+                <div class="chat-bubble-label">TaxSathi AI</div>
+                Yes! Under Section 80D, you can claim up to ₹25,000 for health insurance premiums
+                paid for yourself, your spouse, and dependent children. If your parents are also
+                covered, you can claim an additional ₹25,000 (₹50,000 if they are senior citizens).
+              </div>
+              <div class="chat-bubble user-bubble">
+                <div class="chat-bubble-label">You</div>
+                What documents do I need?
+              </div>
+              <div class="chat-bubble ai-bubble">
+                <div class="chat-bubble-label">TaxSathi AI</div>
+                You'll need the premium payment receipt from your insurer. The actual deduction
+                is self-declared in your ITR — no document needs to be submitted to the department.
+              </div>
+            </div>
+          </div>
+
+          <!-- Topics covered -->
+          <div class="feature-info-note" role="note">
+            <span class="feature-info-note-icon" aria-hidden="true">💡</span>
+            <p class="feature-info-note-text">
+              <strong>Topics covered:</strong> Deductions (80C, 80D, 80G), exemptions (HRA, LTA),
+              capital gains tax, TDS reconciliation, old vs new tax regime comparison, and general
+              ITR filing guidance — in both English and Hindi.
+            </p>
+          </div>
+        </div>
+
+        <div class="feature-detail-footer">
+          <span class="feature-detail-footer-note">
+            AI Tax Assistant will be available in an upcoming development milestone.
+          </span>
+          <button
+            class="btn btn-primary btn-sm btn-card-cta"
+            type="button"
+            disabled
+            aria-disabled="true"
+            title="Not yet available"
+            style="width: auto; padding: var(--space-2) var(--space-5);"
+          >
+            Open Assistant
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Tax Summary Detail Block ── -->
+      <div class="feature-detail-block" aria-labelledby="summaryDetailTitle">
+        <div class="feature-detail-header">
+          <div class="feature-detail-header-left">
+            <div class="feature-detail-icon blue" aria-hidden="true">📊</div>
+            <div>
+              <div class="feature-detail-header-title" id="summaryDetailTitle">Tax Summary</div>
+              <div class="feature-detail-header-desc">Income breakdown, deductions, and tax liability overview</div>
+            </div>
+          </div>
+          <span class="coming-soon-badge">Coming Soon</span>
+        </div>
+
+        <div class="feature-detail-body">
+          <p style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); margin-bottom: var(--space-3);">
+            Summary structure preview
+          </p>
+
+          <!-- Placeholder summary rows — all values show "—" as no data yet -->
+          <div class="summary-rows" role="table" aria-label="Tax summary placeholder table">
+            <div class="summary-row" role="row">
+              <span class="summary-row-label" role="cell">Gross Total Income</span>
+              <span class="summary-row-value" role="cell">— (not yet filed)</span>
+            </div>
+            <div class="summary-row" role="row">
+              <span class="summary-row-label" role="cell">Deductions under Chapter VI-A</span>
+              <span class="summary-row-value" role="cell">— (not yet filed)</span>
+            </div>
+            <div class="summary-row" role="row">
+              <span class="summary-row-label" role="cell">Net Taxable Income</span>
+              <span class="summary-row-value" role="cell">— (not yet filed)</span>
+            </div>
+            <div class="summary-row" role="row">
+              <span class="summary-row-label" role="cell">Tax Computed (incl. surcharge &amp; cess)</span>
+              <span class="summary-row-value" role="cell">— (not yet filed)</span>
+            </div>
+            <div class="summary-row" role="row">
+              <span class="summary-row-label" role="cell">TDS / Advance Tax Paid</span>
+              <span class="summary-row-value" role="cell">— (not yet filed)</span>
+            </div>
+            <div class="summary-row total-row" role="row">
+              <span class="summary-row-label" role="cell">Tax Payable / Refund Due</span>
+              <span class="summary-row-value" role="cell">— (not yet filed)</span>
+            </div>
+          </div>
+
+          <div class="feature-info-note" role="note">
+            <span class="feature-info-note-icon" aria-hidden="true">ℹ️</span>
+            <p class="feature-info-note-text">
+              This section will display your personalised tax computation once ITR Filing
+              is completed. No real values are shown here — all entries above are structural
+              placeholders only.
+            </p>
+          </div>
+        </div>
+
+        <div class="feature-detail-footer">
+          <span class="feature-detail-footer-note">
+            Tax Summary will populate after ITR data is submitted in a later milestone.
+          </span>
+          <button
+            class="btn btn-primary btn-sm btn-card-cta"
+            type="button"
+            disabled
+            aria-disabled="true"
+            title="Not yet available"
+            style="width: auto; padding: var(--space-2) var(--space-5);"
+          >
+            View Full Summary
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── 5. MAIN FEATURE CARDS (existing 20% — unchanged) ── -->
     <section class="feature-section" aria-labelledby="featuresHeading">
       <h2 class="section-heading" id="featuresHeading">Main Features</h2>
       <p class="section-subheading">
@@ -923,25 +1621,38 @@
       window.location.replace('login.html');
     }
 
-    // ── Populate user name/email from JWT ──────────
+    // ── Populate user info from JWT ────────────────
     const token = getToken();
     if (token) {
       try {
-        const payload   = JSON.parse(atob(token.split('.')[1]));
-        const emailEl   = document.getElementById('userEmail');
-        const welcomeEl = document.getElementById('welcomeUserName');
-        const email     = payload.email || null;
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const email   = payload.email || null;
 
         if (email) {
-          // Show email in nav badge
-          if (emailEl) emailEl.textContent = email;
-          // Derive first name from email (before the @) for the greeting
+          // ── 20%: Nav badge + welcome heading ──
+          const emailEl   = document.getElementById('userEmail');
+          const welcomeEl = document.getElementById('welcomeUserName');
           const firstName = email.split('@')[0];
           const displayName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-          if (welcomeEl) welcomeEl.textContent = displayName;
+
+          if (emailEl)   emailEl.textContent   = email;
+          if (welcomeEl) welcomeEl.textContent  = displayName;
+
+          // ── 40%: User Information card ──────────
+          const infoNameEl    = document.getElementById('userInfoName');
+          const infoEmailEl   = document.getElementById('userInfoEmail');
+          const avatarEl      = document.getElementById('userAvatarInitials');
+
+          if (infoNameEl)  infoNameEl.textContent  = displayName;
+          if (infoEmailEl) infoEmailEl.textContent  = email;
+
+          // Avatar: first initial of display name
+          if (avatarEl) {
+            avatarEl.textContent = displayName.charAt(0).toUpperCase();
+          }
         }
       } catch (_) {
-        // JWT may not carry email — keep default "User" text
+        // JWT may not carry email — keep default placeholder text
       }
     }
 
