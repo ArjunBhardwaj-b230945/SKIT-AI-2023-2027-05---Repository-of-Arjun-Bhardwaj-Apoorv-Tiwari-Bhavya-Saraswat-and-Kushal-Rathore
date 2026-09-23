@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="TaxSathi Dashboard – Your personal ITR filing and tax assistance home." />
-  <title>Dashboard – TaxSathi</title>
+  <meta name="description" content="TaxSathi Dashboard — Your personal ITR filing and tax assistance home." />
+  <title>Dashboard — TaxSathi</title>
 
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -17,12 +17,13 @@
 
   <style>
     /* =====================================================
-       Dashboard – Page Styles
+       TaxSathi Dashboard — Page Styles
+       60% Milestone: consolidated responsive cascade,
+       de-duplicated media queries, added breakpoints.
        Uses existing CSS custom properties from base.css.
-       All dashboard-specific styles are scoped here to
-       avoid duplicating or overriding existing components.
        ===================================================== */
 
+    /* ══ Base body ═══════════════════════════════════ */
     body {
       min-height: 100vh;
       background-color: var(--color-bg);
@@ -30,7 +31,7 @@
       flex-direction: column;
     }
 
-    /* ── Top Navigation Bar ────────────────────────── */
+    /* ══ Top Navigation Bar ══════════════════════════ */
     .dashboard-nav {
       background-color: var(--color-surface);
       border-bottom: 1px solid var(--color-border);
@@ -42,6 +43,7 @@
       top: 0;
       z-index: 100;
       box-shadow: var(--shadow-sm);
+      min-width: 0;
     }
 
     .nav-logo {
@@ -49,11 +51,10 @@
       align-items: center;
       gap: var(--space-3);
       text-decoration: none;
+      flex-shrink: 0;
     }
 
-    .nav-logo:hover {
-      text-decoration: none;
-    }
+    .nav-logo:hover { text-decoration: none; }
 
     .nav-logo-icon {
       width: 36px;
@@ -73,14 +74,13 @@
       letter-spacing: -0.01em;
     }
 
-    .nav-logo-name span {
-      color: var(--color-primary);
-    }
+    .nav-logo-name span { color: var(--color-primary); }
 
     .nav-actions {
       display: flex;
       align-items: center;
       gap: var(--space-3);
+      min-width: 0;
     }
 
     .nav-user-badge {
@@ -94,6 +94,7 @@
       border-radius: var(--radius-full);
       border: 1px solid var(--color-border);
       max-width: 200px;
+      min-width: 0;
       overflow: hidden;
     }
 
@@ -115,18 +116,27 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      min-width: 0;
     }
 
-    /* ── Page wrapper ──────────────────────────────── */
+    /* ══ Page wrapper ════════════════════════════════ */
     .dashboard-page {
       flex: 1;
       width: 100%;
       max-width: 1120px;
       margin: 0 auto;
       padding: var(--space-8) var(--space-8) var(--space-16);
+      overflow-x: hidden;
+      box-sizing: border-box;
     }
 
-    /* ── Section headings ──────────────────────────── */
+    /* ══ Shared utility spacing classes ══════════════ */
+    /* .mb-section: standard between-section gap (replaces inline style="margin-bottom:var(--space-8)") */
+    .mb-section { margin-bottom: var(--space-8); }
+    /* .mb-block: gap between blocks within a section (replaces inline style="margin-bottom:var(--space-5)") */
+    .mb-block   { margin-bottom: var(--space-5); }
+
+    /* ══ Section headings ════════════════════════════ */
     .section-heading {
       font-size: var(--font-size-xl);
       font-weight: var(--font-weight-bold);
@@ -139,9 +149,10 @@
       font-size: var(--font-size-sm);
       color: var(--color-text-secondary);
       margin-bottom: var(--space-5);
+      line-height: var(--line-height-relaxed);
     }
 
-    /* ── Welcome / Overview Banner ─────────────────── */
+    /* ══ Welcome Banner ══════════════════════════════ */
     .welcome-banner {
       background: linear-gradient(130deg, var(--color-primary-dark) 0%, var(--color-primary) 60%, #2D9E60 100%);
       border-radius: var(--radius-xl);
@@ -152,7 +163,6 @@
       overflow: hidden;
     }
 
-    /* Decorative circles on the banner */
     .welcome-banner::before,
     .welcome-banner::after {
       content: '';
@@ -162,19 +172,8 @@
       pointer-events: none;
     }
 
-    .welcome-banner::before {
-      width: 260px;
-      height: 260px;
-      bottom: -70px;
-      right: -60px;
-    }
-
-    .welcome-banner::after {
-      width: 140px;
-      height: 140px;
-      top: -40px;
-      right: 180px;
-    }
+    .welcome-banner::before { width: 260px; height: 260px; bottom: -70px; right: -60px; }
+    .welcome-banner::after  { width: 140px; height: 140px; top: -40px;   right: 180px; }
 
     .welcome-banner-inner {
       position: relative;
@@ -185,7 +184,7 @@
       gap: var(--space-6);
     }
 
-    .welcome-banner-text {}
+    .welcome-banner-text { min-width: 0; }
 
     .welcome-greeting-tag {
       display: inline-flex;
@@ -209,11 +208,10 @@
       letter-spacing: -0.02em;
       line-height: var(--line-height-tight);
       margin-bottom: var(--space-2);
+      word-break: break-word;
     }
 
-    .welcome-name span {
-      color: var(--color-accent);
-    }
+    .welcome-name span { color: var(--color-accent); }
 
     .welcome-desc {
       font-size: var(--font-size-sm);
@@ -230,7 +228,6 @@
       flex-wrap: wrap;
     }
 
-    /* White filled button for banner */
     .btn-white {
       background-color: white;
       border-color: white;
@@ -245,7 +242,6 @@
       text-decoration: none;
     }
 
-    /* Ghost-white for secondary banner button */
     .btn-ghost-white {
       background-color: rgba(255,255,255,.12);
       border: 1.5px solid rgba(255,255,255,.35);
@@ -260,7 +256,6 @@
       color: white;
     }
 
-    /* Banner right: session pill */
     .welcome-session-info {
       flex-shrink: 0;
       display: flex;
@@ -291,12 +286,11 @@
       flex-shrink: 0;
     }
 
-    /* ── Quick-Status Bar ──────────────────────────── */
+    /* ══ Quick-Status Bar ════════════════════════════ */
     .status-bar {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: var(--space-4);
-      margin-bottom: var(--space-8);
     }
 
     .status-card {
@@ -309,6 +303,7 @@
       align-items: center;
       gap: var(--space-4);
       transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
+      min-width: 0;
     }
 
     .status-card:hover {
@@ -332,25 +327,27 @@
     .status-icon-wrap.blue   { background-color: #EFF6FF; }
     .status-icon-wrap.purple { background-color: #F3F0FF; }
 
-    .status-info {}
+    .status-info { min-width: 0; }
 
     .status-value {
       font-size: var(--font-size-lg);
       font-weight: var(--font-weight-bold);
       color: var(--color-text-primary);
       line-height: var(--line-height-tight);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .status-label {
       font-size: var(--font-size-xs);
       color: var(--color-text-muted);
       margin-top: 2px;
+      line-height: var(--line-height-normal);
     }
 
-    /* ── Main Feature Cards ────────────────────────── */
-    .feature-section {
-      margin-bottom: var(--space-8);
-    }
+    /* ══ Main Feature Cards (20%) ════════════════════ */
+    .feature-section { margin-bottom: var(--space-8); }
 
     .feature-grid {
       display: grid;
@@ -367,7 +364,10 @@
       display: flex;
       flex-direction: column;
       gap: var(--space-4);
-      transition: box-shadow var(--transition-normal), transform var(--transition-normal), border-color var(--transition-normal);
+      transition:
+        box-shadow var(--transition-normal),
+        transform var(--transition-normal),
+        border-color var(--transition-normal);
       position: relative;
       overflow: hidden;
     }
@@ -378,20 +378,17 @@
       border-color: var(--color-border-focus);
     }
 
-    /* Subtle top-border accent per card */
     .feature-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0;
       height: 3px;
       border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     }
 
-    .feature-card.card-green::before  { background-color: var(--color-primary); }
-    .feature-card.card-amber::before  { background-color: var(--color-accent); }
-    .feature-card.card-blue::before   { background-color: #3B82F6; }
+    .feature-card.card-green::before { background-color: var(--color-primary); }
+    .feature-card.card-amber::before { background-color: var(--color-accent); }
+    .feature-card.card-blue::before  { background-color: #3B82F6; }
 
     .feature-card-header {
       display: flex;
@@ -411,9 +408,9 @@
       flex-shrink: 0;
     }
 
-    .feature-card-icon-wrap.green  { background-color: var(--color-primary-light); }
-    .feature-card-icon-wrap.amber  { background-color: #FEF3C7; }
-    .feature-card-icon-wrap.blue   { background-color: #EFF6FF; }
+    .feature-card-icon-wrap.green { background-color: var(--color-primary-light); }
+    .feature-card-icon-wrap.amber { background-color: #FEF3C7; }
+    .feature-card-icon-wrap.blue  { background-color: #EFF6FF; }
 
     .coming-soon-badge {
       display: inline-flex;
@@ -444,7 +441,6 @@
       line-height: var(--line-height-relaxed);
     }
 
-    /* Bullet list inside feature card */
     .feature-bullets {
       list-style: none;
       display: flex;
@@ -471,8 +467,8 @@
       margin-top: 7px;
     }
 
-    .feature-bullet-dot.amber  { background-color: var(--color-accent-dark); }
-    .feature-bullet-dot.blue   { background-color: #3B82F6; }
+    .feature-bullet-dot.amber { background-color: var(--color-accent-dark); }
+    .feature-bullet-dot.blue  { background-color: #3B82F6; }
 
     .feature-card-footer {
       margin-top: auto;
@@ -480,7 +476,7 @@
       border-top: 1px solid var(--color-border);
     }
 
-    /* Disabled CTA inside feature card */
+    /* Disabled full-width CTA (inside feature cards) */
     .btn-card-cta {
       width: 100%;
       justify-content: center;
@@ -491,14 +487,21 @@
       pointer-events: none;
     }
 
-    /* ── Information strip ─────────────────────────── */
+    /* Modifier: auto-width CTA for feature-detail footers.
+       Replaces repeated inline style="width:auto;padding:..." */
+    .btn-card-cta--inline {
+      width: auto;
+      padding: var(--space-2) var(--space-5);
+    }
+
+    /* ══ Information / Compliance Strip ══════════════ */
     .info-strip {
       background-color: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
       padding: var(--space-4) var(--space-6);
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: var(--space-4);
       box-shadow: var(--shadow-sm);
     }
@@ -506,6 +509,7 @@
     .info-strip-icon {
       font-size: 1.4rem;
       flex-shrink: 0;
+      margin-top: 2px;
     }
 
     .info-strip-text {
@@ -513,6 +517,7 @@
       font-size: var(--font-size-sm);
       color: var(--color-text-secondary);
       line-height: var(--line-height-relaxed);
+      min-width: 0;
     }
 
     .info-strip-text strong {
@@ -520,16 +525,8 @@
       font-weight: var(--font-weight-semibold);
     }
 
-
-    /* =====================================================
-       40% MILESTONE — Additional styles
-       User Information display + Feature Detail sections
-       ===================================================== */
-
-    /* ── User Information Card ─────────────────────── */
-    .user-info-section {
-      margin-bottom: var(--space-8);
-    }
+    /* ══ User Information Card (40%) ═════════════════ */
+    .user-info-section { margin-bottom: var(--space-8); }
 
     .user-info-card {
       background-color: var(--color-surface);
@@ -540,9 +537,9 @@
       display: flex;
       align-items: center;
       gap: var(--space-6);
+      min-width: 0;
     }
 
-    /* Avatar circle — initials only, no image needed */
     .user-avatar {
       width: 64px;
       height: 64px;
@@ -650,12 +647,9 @@
       color: var(--color-text-primary);
     }
 
-    /* ── Feature Detail Sections ───────────────────── */
-    .feature-detail-section {
-      margin-bottom: var(--space-8);
-    }
+    /* ══ Feature Detail Sections (40%) ═══════════════ */
+    .feature-detail-section { margin-bottom: var(--space-8); }
 
-    /* Each expanded feature block */
     .feature-detail-block {
       background-color: var(--color-surface);
       border: 1px solid var(--color-border);
@@ -670,12 +664,15 @@
       justify-content: space-between;
       padding: var(--space-5) var(--space-6);
       border-bottom: 1px solid var(--color-border);
+      gap: var(--space-3);
+      flex-wrap: wrap;
     }
 
     .feature-detail-header-left {
       display: flex;
       align-items: center;
       gap: var(--space-4);
+      min-width: 0;
     }
 
     .feature-detail-icon {
@@ -689,9 +686,9 @@
       flex-shrink: 0;
     }
 
-    .feature-detail-icon.green  { background-color: var(--color-primary-light); }
-    .feature-detail-icon.amber  { background-color: #FEF3C7; }
-    .feature-detail-icon.blue   { background-color: #EFF6FF; }
+    .feature-detail-icon.green { background-color: var(--color-primary-light); }
+    .feature-detail-icon.amber { background-color: #FEF3C7; }
+    .feature-detail-icon.blue  { background-color: #EFF6FF; }
 
     .feature-detail-header-title {
       font-size: var(--font-size-lg);
@@ -710,10 +707,17 @@
       padding: var(--space-6);
     }
 
-    /* Step grid inside detail block */
+    /* Sub-label inside detail body — replaces repeated inline <p style="..."> */
+    .detail-body-label {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-3);
+    }
+
     .feature-steps {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: var(--space-4);
       margin-bottom: var(--space-5);
     }
@@ -738,9 +742,9 @@
       flex-shrink: 0;
     }
 
-    .feature-step-number.green  { background-color: var(--color-primary); }
-    .feature-step-number.amber  { background-color: var(--color-accent-dark); }
-    .feature-step-number.blue   { background-color: #3B82F6; }
+    .feature-step-number.green { background-color: var(--color-primary); }
+    .feature-step-number.amber { background-color: var(--color-accent-dark); }
+    .feature-step-number.blue  { background-color: #3B82F6; }
 
     .feature-step-title {
       font-size: var(--font-size-sm);
@@ -754,7 +758,6 @@
       line-height: var(--line-height-relaxed);
     }
 
-    /* Info note row inside detail block */
     .feature-info-note {
       display: flex;
       align-items: flex-start;
@@ -776,6 +779,7 @@
       font-size: var(--font-size-sm);
       color: var(--color-text-secondary);
       line-height: var(--line-height-relaxed);
+      min-width: 0;
     }
 
     .feature-detail-footer {
@@ -793,6 +797,7 @@
       font-size: var(--font-size-xs);
       color: var(--color-text-muted);
       font-style: italic;
+      min-width: 0;
     }
 
     /* AI chat preview mock */
@@ -827,6 +832,7 @@
       border-radius: var(--radius-lg);
       font-size: var(--font-size-sm);
       line-height: var(--line-height-relaxed);
+      word-break: break-word;
     }
 
     .chat-bubble.user-bubble {
@@ -855,7 +861,6 @@
     .summary-rows {
       display: flex;
       flex-direction: column;
-      gap: 0;
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
       overflow: hidden;
@@ -864,16 +869,14 @@
 
     .summary-row {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       justify-content: space-between;
       padding: var(--space-3) var(--space-5);
       border-bottom: 1px solid var(--color-border);
       gap: var(--space-4);
     }
 
-    .summary-row:last-child {
-      border-bottom: none;
-    }
+    .summary-row:last-child { border-bottom: none; }
 
     .summary-row.total-row {
       background-color: var(--color-primary-light);
@@ -884,11 +887,10 @@
       font-size: var(--font-size-sm);
       color: var(--color-text-secondary);
       flex: 1;
+      line-height: var(--line-height-normal);
     }
 
-    .summary-row.total-row .summary-row-label {
-      color: var(--color-primary-dark);
-    }
+    .summary-row.total-row .summary-row-label { color: var(--color-primary-dark); }
 
     .summary-row-value {
       font-size: var(--font-size-sm);
@@ -896,81 +898,57 @@
       color: var(--color-text-muted);
       font-style: italic;
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
-    .summary-row.total-row .summary-row-value {
-      color: var(--color-primary-dark);
-    }
+    .summary-row.total-row .summary-row-value { color: var(--color-primary-dark); }
 
     /* =====================================================
-       RESPONSIVE — 40% additions
+       RESPONSIVE CASCADE — single consolidated pass
+       Ordered largest ─ smallest for clear override chain.
+       Breakpoints: 1440 · 1200 · 1024 · 900 · 640 · 480 · 360
        ===================================================== */
 
-    @media (max-width: 900px) {
-      .user-info-card {
-        flex-wrap: wrap;
-        gap: var(--space-4);
-      }
-
-      .user-info-meta {
-        align-items: flex-start;
-        flex-direction: row;
-        gap: var(--space-6);
-        width: 100%;
-      }
-
-      .user-meta-item {
-        align-items: flex-start;
-      }
-
-      .feature-steps {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    /* 1440px — large screens: allow slightly wider content area */
+    @media (min-width: 1440px) {
+      .dashboard-page { max-width: 1200px; }
     }
 
-    @media (max-width: 640px) {
-      .user-info-card {
-        padding: var(--space-4) var(--space-4);
-      }
-
-      .user-info-meta {
-        flex-direction: column;
-        gap: var(--space-2);
-      }
-
-      .feature-steps {
-        grid-template-columns: 1fr;
-      }
-
-      .feature-detail-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--space-3);
-      }
-
-      .feature-detail-footer {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
-
-    /* =====================================================
-       RESPONSIVE BREAKPOINTS (existing — unchanged)
-       ===================================================== */
-
-    /* Laptop / smaller desktop (≤ 1200px) */
+    /* 1200px — laptop / smaller desktop */
     @media (max-width: 1200px) {
       .dashboard-page {
         max-width: 100%;
         padding: var(--space-6) var(--space-6) var(--space-12);
       }
+    }
 
+    /* 1024px — tablet landscape (NEW breakpoint) */
+    @media (max-width: 1024px) {
+      .dashboard-nav {
+        padding: var(--space-4) var(--space-6);
+      }
+
+      .dashboard-page {
+        padding: var(--space-6) var(--space-5) var(--space-12);
+      }
+
+      /* Status bar: 4 ─ 2 columns */
       .status-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      /* Feature card grid: 3 ─ 2 columns */
+      .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      /* Step grid: 4 ─ 2 columns */
+      .feature-steps {
         grid-template-columns: repeat(2, 1fr);
       }
     }
 
-    /* Tablet (≤ 900px) */
+    /* 900px — tablet portrait */
     @media (max-width: 900px) {
       .dashboard-nav {
         padding: var(--space-3) var(--space-5);
@@ -984,68 +962,184 @@
         padding: var(--space-6) var(--space-6);
       }
 
-      .welcome-session-info {
-        display: none; /* hide right-side session info on tablet */
+      .welcome-session-info { display: none; }
+
+      .welcome-name { font-size: var(--font-size-2xl); }
+
+      /* User info card: row ─ wrapped row on tablet */
+      .user-info-card {
+        flex-wrap: wrap;
+        gap: var(--space-4);
+        padding: var(--space-5) var(--space-6);
       }
 
-      .welcome-name {
-        font-size: var(--font-size-2xl);
+      .user-info-meta {
+        align-items: flex-start;
+        flex-direction: row;
+        gap: var(--space-6);
+        width: 100%;
       }
 
-      .feature-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .status-bar {
-        grid-template-columns: repeat(2, 1fr);
-      }
+      .user-meta-item { align-items: flex-start; }
     }
 
-    /* Mobile large (≤ 640px) */
+    /* 640px — large mobile */
     @media (max-width: 640px) {
-      .dashboard-nav {
-        padding: var(--space-3) var(--space-4);
-      }
+      .dashboard-nav { padding: var(--space-3) var(--space-4); }
 
-      .nav-user-badge {
-        display: none; /* show only sign-out button on small screens */
-      }
+      .nav-user-badge { display: none; }
 
       .dashboard-page {
         padding: var(--space-4) var(--space-4) var(--space-8);
       }
 
-      .welcome-banner {
-        padding: var(--space-5) var(--space-5);
-      }
+      .welcome-banner { padding: var(--space-5) var(--space-4); }
 
-      .welcome-name {
-        font-size: var(--font-size-xl);
-      }
+      .welcome-name  { font-size: var(--font-size-xl); }
+
+      .welcome-desc  { max-width: 100%; }
 
       .welcome-actions {
         flex-direction: column;
         align-items: flex-start;
       }
 
-      .feature-grid {
-        grid-template-columns: 1fr;
+      .welcome-actions .btn {
+        width: 100%;
+        justify-content: center;
       }
 
+      /* Status bar: 2 columns */
       .status-bar {
         grid-template-columns: 1fr 1fr;
         gap: var(--space-3);
       }
 
       .status-card {
-        padding: var(--space-3) var(--space-4);
+        padding: var(--space-3) var(--space-3);
+        gap: var(--space-3);
       }
+
+      .status-icon-wrap {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+      }
+
+      .status-value { font-size: var(--font-size-base); }
+
+      /* Feature card: 1 column */
+      .feature-grid { grid-template-columns: 1fr; }
+
+      /* Steps: 1 column */
+      .feature-steps { grid-template-columns: 1fr; }
+
+      /* User info card */
+      .user-info-card {
+        padding: var(--space-4);
+        gap: var(--space-3);
+      }
+
+      .user-info-meta {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: var(--space-4);
+        width: 100%;
+      }
+
+      .user-meta-item { align-items: flex-start; }
+
+      /* Feature detail */
+      .feature-detail-body  { padding: var(--space-4); }
+
+      .feature-detail-footer {
+        padding: var(--space-3) var(--space-4);
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .feature-detail-footer .btn-card-cta--inline {
+        width: 100%;
+        justify-content: center;
+      }
+
+      /* Allow summary values to wrap on mobile */
+      .summary-row-value {
+        white-space: normal;
+        text-align: right;
+      }
+
+      .info-strip { padding: var(--space-3) var(--space-4); }
     }
 
-    /* Mobile small (≤ 400px) */
-    @media (max-width: 400px) {
-      .status-bar {
-        grid-template-columns: 1fr;
+    /* 480px — medium-small mobile */
+    @media (max-width: 480px) {
+      .welcome-name { font-size: var(--font-size-lg); }
+
+      .welcome-greeting-tag { font-size: 0.65rem; }
+
+      .status-bar { gap: var(--space-2); }
+
+      .status-card {
+        padding: var(--space-2) var(--space-3);
+        gap: var(--space-2);
+      }
+
+      .status-icon-wrap {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+      }
+
+      .section-heading { font-size: var(--font-size-lg); }
+
+      .user-avatar {
+        width: 52px;
+        height: 52px;
+        font-size: var(--font-size-lg);
+      }
+
+      .user-info-name { font-size: var(--font-size-lg); }
+
+      .feature-card { padding: var(--space-4); }
+
+      .feature-detail-body   { padding: var(--space-3); }
+      .feature-detail-header { padding: var(--space-4); }
+
+      .chat-bubble { max-width: 95%; }
+    }
+
+    /* 360px — minimum viable small mobile */
+    @media (max-width: 360px) {
+      .dashboard-page {
+        padding: var(--space-3) var(--space-3) var(--space-6);
+      }
+
+      .dashboard-nav { padding: var(--space-2) var(--space-3); }
+
+      .welcome-banner {
+        padding: var(--space-4) var(--space-3);
+        border-radius: var(--radius-lg);
+      }
+
+      /* Status bar: 1 column only at 360px */
+      .status-bar { grid-template-columns: 1fr; }
+
+      .user-info-card { padding: var(--space-3); }
+
+      .feature-detail-body { padding: var(--space-3); }
+
+      /* Summary rows: stack vertically on tiny screens */
+      .summary-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-1);
+        padding: var(--space-2) var(--space-3);
+      }
+
+      .summary-row-value {
+        text-align: left;
+        white-space: normal;
       }
     }
   </style>
@@ -1053,9 +1147,9 @@
 
 <body>
 
-  <!-- ════════════════════════════════════════════════
+  <!-- ••••••••••••••••••••••••••••••••••••••••••••••••
        NAVIGATION
-       ════════════════════════════════════════════════ -->
+       •••••••••••••••••••••••••••••••••••••••••••••••• -->
   <nav class="dashboard-nav" role="navigation" aria-label="Main navigation">
 
     <!-- Logo -->
@@ -1092,12 +1186,12 @@
 
   </nav>
 
-  <!-- ════════════════════════════════════════════════
+  <!-- ••••••••••••••••••••••••••••••••••••••••••••••••
        MAIN CONTENT
-       ════════════════════════════════════════════════ -->
+       •••••••••••••••••••••••••••••••••••••••••••••••• -->
   <main class="dashboard-page" role="main" id="dashboardMain">
 
-    <!-- ── 1. WELCOME BANNER ─────────────────────── -->
+    <!-- ══ 1. WELCOME BANNER ═══════════════════════ -->
     <section aria-labelledby="welcomeHeading">
       <div class="welcome-banner">
         <div class="welcome-banner-inner">
@@ -1162,8 +1256,8 @@
       </div>
     </section>
 
-    <!-- ── 2. QUICK STATUS BAR ───────────────────── -->
-    <section aria-label="Quick status overview" style="margin-bottom: var(--space-8);">
+    <!-- ══ 2. QUICK STATUS BAR ═════════════════════ -->
+    <section class="mb-section" aria-label="Quick status overview">
       <div class="status-bar" role="list">
 
         <div class="status-card" role="listitem">
@@ -1201,7 +1295,7 @@
       </div>
     </section>
 
-    <!-- ── 3. USER INFORMATION  [40%] ────────────── -->
+    <!-- ══ 3. USER INFORMATION  [40%] ══════════════ -->
     <section class="user-info-section" aria-labelledby="userInfoHeading">
       <h2 class="section-heading" id="userInfoHeading">Account Information</h2>
       <p class="section-subheading">
@@ -1243,15 +1337,15 @@
       </div>
     </section>
 
-    <!-- ── 4. FEATURE DETAIL SECTIONS  [40%] ──────── -->
+    <!-- ══ 4. FEATURE DETAIL SECTIONS  [40%] ════════ -->
     <section class="feature-detail-section" aria-labelledby="featureDetailHeading">
       <h2 class="section-heading" id="featureDetailHeading">Feature Overview</h2>
       <p class="section-subheading">
         Detailed view of each module — functionality will be enabled in upcoming milestones.
       </p>
 
-      <!-- ── ITR Filing Detail Block ── -->
-      <div class="feature-detail-block" style="margin-bottom: var(--space-5);" aria-labelledby="itrDetailTitle">
+      <!-- ══ ITR Filing Detail Block ══ -->
+      <div class="feature-detail-block mb-block" aria-labelledby="itrDetailTitle">
         <div class="feature-detail-header">
           <div class="feature-detail-header-left">
             <div class="feature-detail-icon green" aria-hidden="true">📄</div>
@@ -1265,7 +1359,7 @@
 
         <div class="feature-detail-body">
           <!-- How it works steps -->
-          <p style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); margin-bottom: var(--space-3);">
+          <p class="detail-body-label">
             How it works
           </p>
           <div class="feature-steps" aria-label="ITR filing steps">
@@ -1307,20 +1401,15 @@
             ITR Filing will be available in an upcoming development milestone.
           </span>
           <button
-            class="btn btn-primary btn-sm btn-card-cta"
-            type="button"
-            disabled
-            aria-disabled="true"
-            title="Not yet available"
-            style="width: auto; padding: var(--space-2) var(--space-5);"
+            class="btn btn-primary btn-sm btn-card-cta btn-card-cta--inline" type="button" disabled aria-disabled="true" title="Not yet available"
           >
             Start Filing
           </button>
         </div>
       </div>
 
-      <!-- ── AI Tax Assistant Detail Block ── -->
-      <div class="feature-detail-block" style="margin-bottom: var(--space-5);" aria-labelledby="aiDetailTitle">
+      <!-- ══ AI Tax Assistant Detail Block ══ -->
+      <div class="feature-detail-block mb-block" aria-labelledby="aiDetailTitle">
         <div class="feature-detail-header">
           <div class="feature-detail-header-left">
             <div class="feature-detail-icon amber" aria-hidden="true">🤖</div>
@@ -1334,7 +1423,7 @@
 
         <div class="feature-detail-body">
           <!-- Chat preview mockup (static, not interactive) -->
-          <p style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); margin-bottom: var(--space-3);">
+          <p class="detail-body-label">
             Example conversation preview
           </p>
           <div class="ai-chat-preview" role="img" aria-label="Static preview of AI Tax Assistant conversation">
@@ -1378,19 +1467,14 @@
             AI Tax Assistant will be available in an upcoming development milestone.
           </span>
           <button
-            class="btn btn-primary btn-sm btn-card-cta"
-            type="button"
-            disabled
-            aria-disabled="true"
-            title="Not yet available"
-            style="width: auto; padding: var(--space-2) var(--space-5);"
+            class="btn btn-primary btn-sm btn-card-cta btn-card-cta--inline" type="button" disabled aria-disabled="true" title="Not yet available"
           >
             Open Assistant
           </button>
         </div>
       </div>
 
-      <!-- ── Tax Summary Detail Block ── -->
+      <!-- ══ Tax Summary Detail Block ══ -->
       <div class="feature-detail-block" aria-labelledby="summaryDetailTitle">
         <div class="feature-detail-header">
           <div class="feature-detail-header-left">
@@ -1404,7 +1488,7 @@
         </div>
 
         <div class="feature-detail-body">
-          <p style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); margin-bottom: var(--space-3);">
+          <p class="detail-body-label">
             Summary structure preview
           </p>
 
@@ -1451,12 +1535,7 @@
             Tax Summary will populate after ITR data is submitted in a later milestone.
           </span>
           <button
-            class="btn btn-primary btn-sm btn-card-cta"
-            type="button"
-            disabled
-            aria-disabled="true"
-            title="Not yet available"
-            style="width: auto; padding: var(--space-2) var(--space-5);"
+            class="btn btn-primary btn-sm btn-card-cta btn-card-cta--inline" type="button" disabled aria-disabled="true" title="Not yet available"
           >
             View Full Summary
           </button>
@@ -1465,7 +1544,7 @@
 
     </section>
 
-    <!-- ── 5. MAIN FEATURE CARDS (existing 20% — unchanged) ── -->
+    <!-- ══ 5. MAIN FEATURE CARDS (existing 20% — unchanged) ══ -->
     <section class="feature-section" aria-labelledby="featuresHeading">
       <h2 class="section-heading" id="featuresHeading">Main Features</h2>
       <p class="section-subheading">
@@ -1597,7 +1676,7 @@
       </div>
     </section>
 
-    <!-- ── 4. GOVERNMENT COMPLIANCE STRIP ────────── -->
+    <!-- ══ 4. GOVERNMENT COMPLIANCE STRIP ══════════ -->
     <div class="info-strip" role="note" aria-label="Security and compliance information">
       <span class="info-strip-icon" aria-hidden="true">🏛️</span>
       <div class="info-strip-text">
@@ -1610,18 +1689,18 @@
 
   </main>
 
-  <!-- ════════════════════════════════════════════════
+  <!-- ••••••••••••••••••••••••••••••••••••••••••••••••
        JAVASCRIPT: Auth guard + Sign out (unchanged)
-       ════════════════════════════════════════════════ -->
+       •••••••••••••••••••••••••••••••••••••••••••••••• -->
   <script type="module">
     import { getToken, isLoggedIn, signOut } from './js/auth.js';
 
-    // ── Auth guard: redirect to login if no token ──
+    // ══ Auth guard: redirect to login if no token ══
     if (!isLoggedIn()) {
       window.location.replace('login.html');
     }
 
-    // ── Populate user info from JWT ────────────────
+    // ══ Populate user info from JWT ════════════════
     const token = getToken();
     if (token) {
       try {
@@ -1629,7 +1708,7 @@
         const email   = payload.email || null;
 
         if (email) {
-          // ── 20%: Nav badge + welcome heading ──
+          // ══ 20%: Nav badge + welcome heading ══
           const emailEl   = document.getElementById('userEmail');
           const welcomeEl = document.getElementById('welcomeUserName');
           const firstName = email.split('@')[0];
@@ -1638,7 +1717,7 @@
           if (emailEl)   emailEl.textContent   = email;
           if (welcomeEl) welcomeEl.textContent  = displayName;
 
-          // ── 40%: User Information card ──────────
+          // ══ 40%: User Information card ══════════
           const infoNameEl    = document.getElementById('userInfoName');
           const infoEmailEl   = document.getElementById('userInfoEmail');
           const avatarEl      = document.getElementById('userAvatarInitials');
@@ -1656,7 +1735,7 @@
       }
     }
 
-    // ── Sign out button ────────────────────────────
+    // ══ Sign out button ════════════════════════════
     document.getElementById('signOutBtn').addEventListener('click', () => {
       signOut(); // removes token and redirects to login.html
     });
