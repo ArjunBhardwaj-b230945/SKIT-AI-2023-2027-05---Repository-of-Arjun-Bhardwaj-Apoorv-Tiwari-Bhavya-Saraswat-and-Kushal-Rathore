@@ -94,7 +94,11 @@ def _gemini(temperature: float = 0.2) -> ChatGoogleGenerativeAI:
 # SYSTEM PROMPTS
 # ================================================================================
 
-REWRITE_PROMPT = """"""
+REWRITE_PROMPT = """You are a query optimization assistant for an Indian income tax system.
+Rewrite the user's question into a precise search query for retrieval from the
+Income Tax Act 2025 and Income Tax Rules 2026.
+Output ONLY the rewritten query. No explanation. Under 30 words.
+Expand abbreviations. Add section numbers if implied."""
 
 ANSWER_PROMPT = """"""
 
