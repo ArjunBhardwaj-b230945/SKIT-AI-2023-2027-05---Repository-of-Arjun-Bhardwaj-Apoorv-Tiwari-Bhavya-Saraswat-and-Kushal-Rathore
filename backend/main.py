@@ -9,6 +9,9 @@ from routes.protected import router as protected_router
 # Environment Configuration
 # ============================================================
 
+# Load environment variables before creating the application.
+# This allows authentication configuration to be managed
+# outside the source code.
 load_dotenv()
 
 
@@ -18,7 +21,10 @@ load_dotenv()
 
 app = FastAPI(
     title="Authentication and User Management API",
-    description="Backend API for authentication and user management",
+    description=(
+        "Backend API providing user registration, "
+        "authentication and user management operations."
+    ),
     version="1.0.0"
 )
 
@@ -27,31 +33,44 @@ app = FastAPI(
 # Route Registration
 # ============================================================
 
-app.include_router(auth_router)
+# Authentication and user management routes.
+app.include_router(
+    auth_router
+)
 
-app.include_router(protected_router)
+# Existing protected routes are kept connected so that the
+# current authentication architecture continues to work.
+app.include_router(
+    protected_router
+)
 
 
 # ============================================================
-# Application Health
+# Root Endpoint
 # ============================================================
 
 @app.get("/")
 def home():
     """
-    Root endpoint used to verify that the application is running.
+    Basic API information endpoint.
     """
 
     return {
         "success": True,
-        "message": "Backend API is running"
+        "message": "Backend API is running",
+        "service": "Authentication and User Management API"
     }
 
+
+# ============================================================
+# Health Check Endpoint
+# ============================================================
 
 @app.get("/health")
 def health():
     """
-    Health-check endpoint.
+    Health endpoint used to verify that the application
+    process is running correctly.
     """
 
     return {
