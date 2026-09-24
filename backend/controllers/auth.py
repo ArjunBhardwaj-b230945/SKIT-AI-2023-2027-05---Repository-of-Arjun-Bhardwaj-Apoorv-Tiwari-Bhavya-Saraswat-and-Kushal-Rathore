@@ -1,4 +1,8 @@
+import os
+from datetime import datetime, timedelta, timezone
+
 from fastapi import HTTPException, status
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 
@@ -6,6 +10,9 @@ from passlib.context import CryptContext
 # Password Configuration
 # ============================================================
 
+# bcrypt is used for storing passwords securely.
+# The original password is never stored directly in the
+# application user storage.
 pwd_context = CryptContext(
     schemes=["bcrypt"],
     deprecated="auto"
@@ -13,21 +20,57 @@ pwd_context = CryptContext(
 
 
 # ============================================================
+# JWT Configuration
+# ============================================================
+
+# These values can later be moved completely to environment
+# variables when the deployment configuration is finalized.
+JWT_SECRET = os.getenv(
+    "JWT_SECRET",
+    "development_secret"
+)
+
+JWT_ALGORITHM = os.getenv(
+    "JWT_ALGORITHM",
+    "HS256"
+)
+
+JWT_EXPIRES_MINUTES = int(
+    os.getenv(
+        "JWT_EXPIRES_MINUTES",
+        "60"
+    )
+)
+
+
+# ============================================================
 # Temporary User Storage
 # ============================================================
 
-# Temporary in-memory storage for the initial user-management
-# implementation. PostgreSQL integration will be added later.
+# At this stage of the project, users are intentionally kept
+# in memory. PostgreSQL integration will be implemented during
+# the Database Integration phase.
 users = []
+
+# This counter provides unique user IDs during the current
+# application session.
+next_user_id = 1
 
 
 # ============================================================
-# Email Utility Functions
+# General User Utilities
 # ============================================================
 
 def normalize_email(email: str) -> str:
     """
-    Normalize an email address before storing it.
+    Normalize an email address before storing or searching it.
+
+    This prevents situations where:
+        Apoorv@gmail.com
+        apoorv@gmail.com
+        APOORV@GMAIL.COM
+
+    are treated as different users.
     """
 
     return email.strip().lower()
@@ -35,27 +78,29 @@ def normalize_email(email: str) -> str:
 
 def is_valid_email_format(email: str) -> bool:
     """
-    Perform a basic email format check.
+    Perform a basic defensive email validation.
 
-    Detailed email validation is handled by Pydantic
-    through EmailStr at the API layer.
+    FastAPI's EmailStr already performs validation at the API
+    layer, but this additional check keeps the controller safe
+    when its functions are called directly.
     """
 
-    email = normalize_email(email)
+    normalized_email = normalize_email(email)
 
-    return (
-        "@" in email
-        and "." in email.split("@")[-1]
-    )
+    if "@" not in normalized_email:
+        return False
 
+    domain = normalized_email.split("@")[-1]
 
-# ============================================================
-# Password Validation
-# ============================================================
+    if "." not in domain:
+        return False
+
+    return True
+
 
 def validate_password(password: str) -> None:
     """
-    Validate the basic password requirements.
+    Validate password requirements before registration.
     """
 
     if not password:
@@ -71,77 +116,12 @@ def validate_password(password: str) -> None:
         )
 
 
-# ============================================================
-# Password Security
-# ============================================================
-
-def hash_password(password: str) -> str:
-    """
-    Generate a secure password hash.
-
-    Plain-text passwords are never stored in the user
-    collection.
-    """
-
-    return pwd_context.hash(password)
-
-
-def verify_password(
-    password: str,
-    hashed_password: str
-) -> bool:
-    """
-    Verify a password against its stored hash.
-    """
-
-    return pwd_context.verify(
-        password,
-        hashed_password
-    )
-
-
-# ============================================================
-# User Search Functions
-# ============================================================
-
-def find_user_by_email(email: str):
-    """
-    Search for a user using their email address.
-    """
-
-    normalized_email = normalize_email(email)
-
-    for user in users:
-
-        if user["email"] == normalized_email:
-            return user
-
-    return None
-
-
-def find_user_by_id(user_id: int):
-    """
-    Search for a user using their unique identifier.
-    """
-
-    for user in users:
-
-        if user["id"] == user_id:
-            return user
-
-    return None
-
-
-# ============================================================
-# User Validation
-# ============================================================
-
 def validate_user_data(
     email: str,
     password: str
 ) -> None:
     """
-    Validate the information received during registration.
+    Validate data required for creating or updating a user.
     """
 
     normalized_email = normalize_email(email)
@@ -162,7 +142,93 @@ def validate_user_data(
 
 
 # ============================================================
-# User Creation
+# Password Handling
+# ============================================================
+
+def hash_password(password: str) -> str:
+    """
+    Convert a plain-text password into a bcrypt hash.
+    """
+
+    return pwd_context.hash(password)
+
+
+def verify_password(
+    password: str,
+    hashed_password: str
+) -> bool:
+    """
+    Compare a plain-text password with the stored hash.
+    """
+
+    return pwd_context.verify(
+        password,
+        hashed_password
+    )
+
+
+# ============================================================
+# User Lookup Functions
+# ============================================================
+
+def find_user_by_email(email: str):
+    """
+    Search for a user using a normalized email address.
+    """
+
+    normalized_email = normalize_email(email)
+
+    for user in users:
+        if user["email"] == normalized_email:
+            return user
+
+    return None
+
+
+def find_user_by_id(user_id: int):
+    """
+    Search for a user using the numeric user ID.
+    """
+
+    for user in users:
+        if user["id"] == user_id:
+            return user
+
+    return None
+
+
+# ============================================================
+# User Serialization
+# ============================================================
+
+def serialize_user(user: dict) -> dict:
+    """
+    Return only safe user information.
+
+    Password hashes are deliberately excluded from every
+    normal API response.
+    """
+
+    return {
+        "id": user["id"],
+        "email": user["email"],
+        "role": user["role"]
+    }
+
+
+def serialize_users(user_list: list) -> list:
+    """
+    Serialize multiple users using the same safe format.
+    """
+
+    return [
+        serialize_user(user)
+        for user in user_list
+    ]
+
+
+# ============================================================
+# User Registration
 # ============================================================
 
 def create_user(
@@ -171,11 +237,10 @@ def create_user(
     role: str = "user"
 ):
     """
-    Create a new user and store the user temporarily.
-
-    Database persistence will be introduced during the
-    Database Integration phase.
+    Create a new user in temporary in-memory storage.
     """
+
+    global next_user_id
 
     email = normalize_email(email)
 
@@ -187,22 +252,20 @@ def create_user(
     existing_user = find_user_by_email(email)
 
     if existing_user:
-
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="User already exists"
         )
 
+    # Only supported roles are accepted at this stage.
+    # More detailed authorization rules will be handled later.
     if role not in ["user", "admin"]:
-
         role = "user"
-
-    user_id = len(users) + 1
 
     hashed_password = hash_password(password)
 
     user = {
-        "id": user_id,
+        "id": next_user_id,
         "email": email,
         "password": hashed_password,
         "role": role
@@ -210,30 +273,10 @@ def create_user(
 
     users.append(user)
 
+    next_user_id += 1
+
     return user
 
-
-# ============================================================
-# Public User Response
-# ============================================================
-
-def serialize_user(user: dict) -> dict:
-    """
-    Convert internal user data into a safe API response.
-
-    Password hashes are intentionally excluded.
-    """
-
-    return {
-        "id": user["id"],
-        "email": user["email"],
-        "role": user["role"]
-    }
-
-
-# ============================================================
-# User Registration
-# ============================================================
 
 def signup_user(
     email: str,
@@ -241,7 +284,7 @@ def signup_user(
     role: str = "user"
 ):
     """
-    Register a new user.
+    Public registration operation used by the route layer.
     """
 
     user = create_user(
@@ -258,21 +301,243 @@ def signup_user(
 
 
 # ============================================================
-# Basic User Retrieval
+# JWT Token Handling
+# ============================================================
+
+def create_access_token(user: dict) -> str:
+    """
+    Create an access token after successful authentication.
+
+    The token contains basic user information required by the
+    authentication middleware.
+    """
+
+    expiration_time = (
+        datetime.now(timezone.utc)
+        + timedelta(
+            minutes=JWT_EXPIRES_MINUTES
+        )
+    )
+
+    payload = {
+        "sub": str(user["id"]),
+        "email": user["email"],
+        "role": user["role"],
+        "exp": expiration_time
+    }
+
+    token = jwt.encode(
+        payload,
+        JWT_SECRET,
+        algorithm=JWT_ALGORITHM
+    )
+
+    return token
+
+
+# ============================================================
+# User Login
+# ============================================================
+
+def login_user(
+    email: str,
+    password: str
+):
+    """
+    Authenticate an existing user.
+
+    The password provided by the client is compared against
+    the bcrypt hash stored for that user.
+    """
+
+    normalized_email = normalize_email(email)
+
+    if not normalized_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email is required"
+        )
+
+    if not password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password is required"
+        )
+
+    user = find_user_by_email(
+        normalized_email
+    )
+
+    # Do not reveal whether the email exists or the password
+    # was incorrect through separate messages.
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+
+    password_valid = verify_password(
+        password,
+        user["password"]
+    )
+
+    if not password_valid:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+
+    access_token = create_access_token(
+        user
+    )
+
+    return {
+        "success": True,
+        "message": "Login successful",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": serialize_user(user)
+    }
+
+
+# ============================================================
+# User Retrieval
 # ============================================================
 
 def get_user_profile(user_id: int):
     """
-    Retrieve basic information for a registered user.
+    Retrieve one user using the user ID.
     """
 
-    user = find_user_by_id(user_id)
+    user = find_user_by_id(
+        user_id
+    )
 
     if not user:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
 
-    return serialize_user(user)
+    return {
+        "success": True,
+        "user": serialize_user(user)
+    }
+
+
+def get_all_users():
+    """
+    Retrieve all registered users.
+
+    Password information is excluded through serialization.
+    """
+
+    safe_users = serialize_users(
+        users
+    )
+
+    return {
+        "success": True,
+        "count": len(safe_users),
+        "users": safe_users
+    }
+
+
+# ============================================================
+# User Update
+# ============================================================
+
+def update_user(
+    user_id: int,
+    email: str | None = None,
+    role: str | None = None
+):
+    """
+    Update basic user information.
+
+    Password updates are intentionally handled separately so
+    that future password-management logic can have its own
+    validation and security requirements.
+    """
+
+    user = find_user_by_id(
+        user_id
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    if email is not None:
+        normalized_email = normalize_email(
+            email
+        )
+
+        if not is_valid_email_format(
+            normalized_email
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid email format"
+            )
+
+        existing_user = find_user_by_email(
+            normalized_email
+        )
+
+        if (
+            existing_user
+            and existing_user["id"] != user_id
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email is already registered"
+            )
+
+        user["email"] = normalized_email
+
+    if role is not None:
+
+        if role not in ["user", "admin"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid role"
+            )
+
+        user["role"] = role
+
+    return {
+        "success": True,
+        "message": "User updated successfully",
+        "user": serialize_user(user)
+    }
+
+
+# ============================================================
+# User Deletion
+# ============================================================
+
+def delete_user(user_id: int):
+    """
+    Delete an existing user from temporary storage.
+    """
+
+    user = find_user_by_id(
+        user_id
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    users.remove(user)
+
+    return {
+        "success": True,
+        "message": "User deleted successfully",
+        "user_id": user_id
+    }
